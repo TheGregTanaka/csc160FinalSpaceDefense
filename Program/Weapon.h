@@ -10,7 +10,7 @@ public:
 	Weapon(int);
 	~Weapon();
 	void use(int*) override;
-	equipmentType type() override;
+	equipmentType eType() override;
 	//void armYourself(Character*);
 };
 

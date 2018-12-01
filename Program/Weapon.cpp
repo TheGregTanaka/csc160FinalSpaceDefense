@@ -4,7 +4,7 @@
 
 Weapon::Weapon(Equipment *e)
 {
-	if (e->type() != WeaponType)
+	if (e->eType() != WeaponType)
 	{
 		// throw an exception of some sort
 		exit(99);
@@ -27,10 +27,10 @@ Weapon::~Weapon()
 void Weapon::use(int *i)
 {
 	// using a weapon increases the strength stat
-	*i += attackBonus;
+	*i += bonus;
 }
 
-equipmentType Weapon::type()
+equipmentType Weapon::eType()
 {
 	return WeaponType;
 }

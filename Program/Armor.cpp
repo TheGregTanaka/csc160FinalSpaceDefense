@@ -7,9 +7,10 @@ Armor::Armor(int i)
 	bonus = i;
 }
 
+
 Armor::Armor(Equipment *e)
 {
-	if (e->type() != ArmorType)
+	if (e->eType() != ArmorType)
 	{
 		// throw an exception of some sort
 		exit(99);
@@ -30,7 +31,7 @@ void Armor::use(int *i)
 	*i += getBonus();
 }
 
-equipmentType Armor::type()
+equipmentType Armor::eType()
 {
 	return ArmorType;
 }

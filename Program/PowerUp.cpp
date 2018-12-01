@@ -1,19 +1,23 @@
 #include "PowerUp.h"
 
 
-
 PowerUp::PowerUp(int i)
 {
 	bonus = i;
 }
 
+PowerUp::PowerUp(PowerUp *e)
+{
+	which = e->which;
+	name = e->getName();
+	cost = e->getCost();
+	description = e->getDescription();
+	bonus = e->getBonus();
+}
+
+//DELETE THIS
 PowerUp::PowerUp(Equipment *e)
 {
-	if (e->type() != ArmorType)
-	{
-		// throw an exception of some sort
-		exit(99);
-	}
 	name = e->getName();
 	cost = e->getCost();
 	description = e->getDescription();
@@ -29,7 +33,7 @@ void PowerUp::use(int *)
 {
 }
 
-equipmentType PowerUp::type()
+equipmentType PowerUp::eType()
 {
 	return PowerUpType;
 }

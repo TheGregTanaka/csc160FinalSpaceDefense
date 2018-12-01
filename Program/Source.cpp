@@ -18,6 +18,10 @@ CombatStats characterCreation(string*, CharacterType*);
 int displayMainMenu();
 void chatacterSheet(Character *);
 
+// TODO: Clean up unused/dead code
+// TODO: Comment
+// TODO: Document functions
+// TODO: Create requirement file - README would be ideal for this
 int main()
 {
 	//welcome the player to the game
@@ -86,7 +90,7 @@ int main()
 		//TODO make this functionality
 		//saveGame();
 	}
-	cout << "Goodbye";
+	cout << "Goodbye\n";
 
 	system("pause");
 	return 0;

@@ -9,6 +9,6 @@ public:
 	Armor(Equipment*);
 	~Armor();
 	void use(int*) override;
-	equipmentType type() override;
+	equipmentType eType() override;
 };
 

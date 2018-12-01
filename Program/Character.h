@@ -72,6 +72,7 @@ public:
 	int attack();
 	bool defend();
 	void purchase();
+	void useItem(Equipment*, int);
 	void useItem(Weapon*);
 	void useItem(Armor*);
 	void useItem(PowerUp*);

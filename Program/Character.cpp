@@ -92,6 +92,22 @@ void Character::purchase()
 {
 }
 
+void Character::useItem(Equipment *e, int i)
+{
+	switch (e->eType())
+	{
+	case WeaponType:
+		equipedWeapon = i;
+		break;
+	case ArmorType:
+		equipedArmor = i;
+		break;
+	case PowerUpType:
+		std::cout << "\nBIG ERROR OCCURED\n";
+		break;
+	}
+}
+
 /**
  * Allows any equipment item to be used
  */
@@ -116,16 +132,43 @@ void Character::useItem(Armor *)
 {
 }
 
-void Character::useItem(PowerUp *)
+void Character::useItem(PowerUp *p)
 {
+	int effect = 0;
+	p->use(&effect);
+	affectedStat efStat = p->which;
+	switch (efStat)
+	{
+	case HP:
+		stats.health += effect;
+		break;
+	case STR:
+		stats.strength += effect;
+		break;
+	case DEF:
+		stats.defense += effect;
+		break;
+	case SPD:
+		stats.speed += effect;
+		break;
+	case IQ:
+		stats.intellect += effect;
+		break;
+	case ACC:
+		stats.accuracy += effect;
+		break;
+	}
 }
 
+//acts like a setter that sets weapon to the none-equiped value
 void Character::removeWeapon()
 {
+	equipedWeapon = -1;
 }
-
+//acts like a setter that sets armor to the none-equiped value
 void Character::removeArmor()
 {
+	equipedArmor = -1;
 }
 
 void Character::levelUp()
@@ -149,6 +192,7 @@ void Character::displayStats()
 	std::cout << "5: Accuracy : " << getAccuracy() << std::endl;
 }
 
+//TODO finish this
 // displays the character's info and allows inventory management
 void Character::displayCharSheet()
 {
@@ -195,7 +239,17 @@ void Character::displayCharSheet()
 				std::cout << inventory[selection]->getDescription() << " Bonus: " << inventory[selection]->getBonus();
 				break;
 			case 2:
+				if (inventory[selection]->eType() == PowerUpType)
+				{
+					PowerUp p = PowerUp(inventory[selection]);
+					useItem(&p);
+				}
+				else
+				{
+					useItem(inventory[selection], selection);
+				}
 				
+				break;
 			}
 
 			/*if (inventory[selection]->type() == WeaponType)
