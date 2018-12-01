@@ -147,53 +147,65 @@ void rules()
 		"\n\tsealed, so you won't even be seeing them. Just you and me. Not a whole" <<
 		"\n\tlot to do up here other than Battle Aliens, or buy stuff from the "
 		"\n\tcommisary. By the way, I'm Bob, and I run the commisary.\n";
-	// let players skip the rules if they already know how to play.
-	string dialogue = "Bob : Come see me if you need anything between battles. Would you\n\tlike to know more about battleing aliens?";
-	if (yesOrNo(dialogue)) 
+	// let players skip the rules if they already know how to play
+	// this is in a loop, so if the player wishes, they can see the rules again,
+	// additionally, the yesOrNo at the bottom will "stall" for the player, giving
+	// them a chance to read the rules in case they get cleared off the screen
+	// after this runs (which they do).
+	// for efficiency reasons, string dialogue is declared outside the loop, and then
+	// assigned values within.
+	string dialogue = "";
+	while (true)
 	{
-		cout << "Bob: It's pretty simple. An alien will show up, and you're gonna fight it." <<
-			"\n\tOf course, everyone has their own style of fighting aliens. BIG GUNs are going" <<
-			"\n\tto favor strong attacks, and will utilize their strength stat the most. On" <<
-			"\n\tthe other hand, ENGINEERs use brain over brawn. They utilize their intellect" <<
-			"\n\tto set cunning traps. SNIPERs like to keep their distance. They utilize their" <<
-			"\n\taccuracy for their attacks, and are also usually the quickest.\n";
+		dialogue = "Bob : Come see me if you need anything between battles. Would you\n\tlike to know more about battleing aliens?";
+		if (yesOrNo(dialogue))
+		{
+			cout << "Bob: It's pretty simple. An alien will show up, and you're gonna fight it." <<
+				"\n\tOf course, everyone has their own style of fighting aliens. BIG GUNs are going" <<
+				"\n\tto favor strong attacks, and will utilize their strength stat the most. On" <<
+				"\n\tthe other hand, ENGINEERs use brain over brawn. They utilize their intellect" <<
+				"\n\tto set cunning traps. SNIPERs like to keep their distance. They utilize their" <<
+				"\n\taccuracy for their attacks, and are also usually the quickest.\n";
+		}
+		dialogue = "Bob : Would you like to know more about the character stats?";
+		if (yesOrNo(dialogue))
+		{
+			cout << "Bob : There are six core stats to keep track of.\n" <<
+				"\tStrength - this is your character's physical prowess and combat capability.\n" <<
+				"\t\tIt is the primary stat for strong attacks.\n" <<
+				"\tDefense - this is your character's ability to protect themselves from harm\n" <<
+				"\t\twhen an unfriendly alien attacks.\n" <<
+				"\tSpeed - this is how quick your character is. It determines who goes first\n" <<
+				"\t\tin a combat, and also contributes to defending against attacks.\n" <<
+				"\tIntellect - this is your character's relative intellegence. It is the\n" <<
+				"\t\tclever attacks.\n" <<
+				"\tAccuracy - this is your character's ability to aim. Is is the primary stat" <<
+				"\t\tfor accurate attacks.\n" <<
+				"\tAnd possibly most importantly, Health - This is your character's well being.\n" <<
+				"\t\tIf this stat hits 0, your character dies and the game is over. Certain items\n" <<
+				"\t\tcan increase this stat (there is no cap), and leveling up will increase it\n" <<
+				"\t\tas well.\n";
+		}
+		dialogue = "Bob : Would you like to know about equipment and the inventory?";
+		if (yesOrNo(dialogue))
+		{
+			cout << "Bob: You have an inventory, which can hold up to 6 items at the start of the game.\n" <<
+				"\tThere are 3 main types of equipment; Armor, Weapons, and PowerUps. For Armor\n" <<
+				"\tand weapons, you may only have one of each equiped at any given time.\n" <<
+				"\tEquipping an item does not remove it from your inventory. Your equiped Armor\n" <<
+				"\twill give a bonus to your defense, while your equiped Weapon will boost\n" <<
+				"\tattack power. PowerUps, are one time use items which will provide an effect\n" <<
+				"\tand then be comsumed (removed from your inventory). These effects mostly will\n" <<
+				"\tincrease certain stats.\n";
+			cout << "Bob: In the commisary, there will be items available for sale with a price.\n" <<
+				"\tEnter the number of the item you are interested in, and you will be given\n" <<
+				"\toptions to inspect the item (see details about it and it's effect) or to buy.\n" <<
+				"\tOf course, you'll need enough money to make the purchase!\n";
+		}
+		dialogue = "Bob : Would you like to hear any of that again?";
+		if (!yesOrNo(dialogue))
+			break;
 	}
-	dialogue = "Bob : Would you like to know more about the character stats?";
-	if (yesOrNo(dialogue))
-	{
-		cout << "Bob : There are six core stats to keep track of.\n" <<
-			"\tStrength - this is your character's physical prowess and combat capability.\n" <<
-			"\t\tIt is the primary stat for strong attacks.\n" <<
-			"\tDefense - this is your character's ability to protect themselves from harm\n" <<
-			"\t\twhen an unfriendly alien attacks.\n" <<
-			"\tSpeed - this is how quick your character is. It determines who goes first\n" <<
-			"\t\tin a combat, and also contributes to defending against attacks.\n" <<
-			"\tIntellect - this is your character's relative intellegence. It is the\n" <<
-			"\t\tclever attacks.\n" <<
-			"\tAccuracy - this is your character's ability to aim. Is is the primary stat" <<
-			"\t\tfor accurate attacks.\n" <<
-			"\tAnd possibly most importantly, Health - This is your character's well being.\n" <<
-			"\t\tIf this stat hits 0, your character dies and the game is over. Certain items\n" <<
-			"\t\tcan increase this stat (there is no cap), and leveling up will increase it\n" <<
-			"\t\tas well.\n";
-	}
-	dialogue = "Bob : Would you like to know about equipment and the inventory?";
-	if (yesOrNo(dialogue))
-	{
-		cout << "Bob: You have an inventory, which can hold up to 6 items at the start of the game.\n" <<
-			"\tThere are 3 main types of equipment; Armor, Weapons, and PowerUps. For Armor\n" <<
-			"\tand weapons, you may only have one of each equiped at any given time.\n" <<
-			"\tEquipping an item does not remove it from your inventory. Your equiped Armor\n" <<
-			"\twill give a bonus to your defense, while your equiped Weapon will boost\n" <<
-			"\tattack power. PowerUps, are one time use items which will provide an effect\n" <<
-			"\tand then be comsumed (removed from your inventory). These effects mostly will\n" <<
-			"\tincrease certain stats.\n";
-		cout << "Bob: In the commisary, there will be items available for sale with a price.\n" <<
-			"\tEnter the number of the item you are interested in, and you will be given\n" <<
-			"\toptions to inspect the item (see details about it and it's effect) or to buy.\n" <<
-			"\tOf course, you'll need enough money to make the purchase!\n";
-	}
-
 }
 
 CombatStats characterCreation(string *charName, CharacterType *role)
