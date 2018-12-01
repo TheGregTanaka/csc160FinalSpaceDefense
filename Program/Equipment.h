@@ -8,7 +8,8 @@ enum equipmentType
 {
 	WeaponType,
 	ArmorType,
-	PowerUpType
+	PowerUpType,
+	EmptyType
 };
 
 class Equipment

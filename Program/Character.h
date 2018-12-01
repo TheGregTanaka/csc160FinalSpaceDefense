@@ -7,6 +7,7 @@
 #include "Weapon.h"
 #include "Armor.h"
 #include "PowerUp.h"
+#include "EmptySlot.h"
 using std::string;
 
 // define constants to avoid "magic numbers"

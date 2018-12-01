@@ -8,7 +8,12 @@
 Character::Character(CharacterType r, string charName, CombatStats charStats) :
 	role(r), name(charName), level(0), stats(charStats), money(STARTING_MONEY),
 	inventory(new Equipment*[STARTING_INV_SIZE]), equipedArmor(-1), equipedWeapon(-1)
-{}
+{
+	for (int i = 0; i < STARTING_INV_SIZE; ++i)
+	{
+		inventory[i] = new EmptySlot();
+	}
+}
 
 /**
  * Constructor that takes an existing combat stats argument, along with money
@@ -102,9 +107,11 @@ void Character::useItem(Equipment *e, int i)
 	case ArmorType:
 		equipedArmor = i;
 		break;
-	case PowerUpType:
+	case PowerUpType: //TODO make this better
 		std::cout << "\nBIG ERROR OCCURED\n";
 		break;
+	case EmptySlot:
+		std::cout << "There's no item to use!\n";
 	}
 }
 
@@ -197,24 +204,29 @@ void Character::displayStats()
 void Character::displayCharSheet()
 {
 	int selection;
-	while (true)
+	bool loop = true;
+	while (loop)
 	{
 		system("cls"); // clears the screen
 		std::cout << std::setw(10) << getName() << std::setw(4) << getLevel() << std::endl;
 		std::cout << std::endl;
 		std::cout << "Money: " << getMoney() << std::endl;
-		std::cout << (equipedArmor >= 0) ? inventory[equipedArmor]->getName() : "No Armor Equiped";
+		string armor = (equipedArmor >= 0) ? inventory[equipedArmor]->getName() : "No Armor Equiped";
+		std::cout << armor;
 		std::cout << std::endl;
-		std::cout << (equipedWeapon >= 0) ? inventory[equipedWeapon]->getName() : "No Weapon Equiped";
+		string weapon = (equipedWeapon >= 0) ? inventory[equipedWeapon]->getName() : "No Weapon Equiped";
+		std::cout << weapon;
 		std::cout << std::endl;
 		displayStats();
 		// show inventory
 		std::cout << std::endl;
 		std::cout << "Inventory\n";
 		// TODO: if inventory is allowed to be expanded, ensure this reflects the current size, not starting size
+		string item = "";
 		for (int i = 0; i < STARTING_INV_SIZE; ++i)
 		{
-			std::cout << i + 1 << ": " << inventory[i]->getName() << std::endl;
+			item = inventory[i]->getName();
+			std::cout << i + 1 << ": " << item << std::endl;
 		}
 		// allow items from inventory to be used
 		std::cout << "Select an item to investigate or use. Enter 0 to return to the main menu: ";
@@ -227,6 +239,8 @@ void Character::displayCharSheet()
 		}
 		else
 		{
+			// because 1 was added to the index in the display, decrement the user's selection to be the correct index
+			--selection;
 			// check what the player wants to do with the item
 			int select;
 			std::cout << "Enter 1 to Examine, 2 to Use/Equip, 3 to Discard, or 4 to go back: ";
@@ -237,6 +251,8 @@ void Character::displayCharSheet()
 			case 1:
 				std::cout << inventory[selection]->getName() << std::endl;
 				std::cout << inventory[selection]->getDescription() << " Bonus: " << inventory[selection]->getBonus();
+				std::cout << std::endl;
+				system("pause");
 				break;
 			case 2:
 				if (inventory[selection]->eType() == PowerUpType)
@@ -248,27 +264,20 @@ void Character::displayCharSheet()
 				{
 					useItem(inventory[selection], selection);
 				}
-				
+				system("pause");
+				break;
+			case 3:
+				//discard item
+				// deletes the existing pointer
+				delete inventory[selection];
+				// dynamically create a new empty slot here to prevent bad pointer exceptions
+				// and display nicely
+				inventory[selection] = new EmptySlot();
+				break;
+			case 4:
+				loop = false;
 				break;
 			}
-
-			/*if (inventory[selection]->type() == WeaponType)
-			{
-				Weapon tmp = Weapon(inventory[selection]);
-			    
-			}
-			else if (inventory[selection]->type() == ArmorType)
-			{
-				//a
-			}
-			else if (inventory[selection]->type() == PowerUpType)
-			{
-				//p
-			}
-			else 
-			{
-				//error handling
-			}*/
 		}
 	}
 }

@@ -117,6 +117,7 @@
   <ItemGroup>
     <ClCompile Include="Armor.cpp" />
     <ClCompile Include="Character.cpp" />
+    <ClCompile Include="EmptySlot.cpp" />
     <ClCompile Include="Equipment.cpp" />
     <ClCompile Include="PowerUp.cpp" />
     <ClCompile Include="Source.cpp" />
@@ -126,6 +127,7 @@
     <ClInclude Include="Armor.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="CombatStats.h" />
+    <ClInclude Include="EmptySlot.h" />
     <ClInclude Include="Equipment.h" />
     <ClInclude Include="PowerUp.h" />
     <ClInclude Include="Source.h" />

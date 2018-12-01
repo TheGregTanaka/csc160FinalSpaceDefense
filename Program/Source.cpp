@@ -73,9 +73,11 @@ int main()
 			break;
 		case 2:
 			//Shop
+			shop();
 			break;
 		case 3:
 			//Character Sheet
+			pc.displayCharSheet();
 			break;
 		case 4:
 			play = false;
@@ -273,4 +275,9 @@ int displayMainMenu()
 	//TODO validate
 	cin >> selection;
 	return selection;
+}
+
+void shop()
+{
+
 }
