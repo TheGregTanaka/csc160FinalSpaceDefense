@@ -15,9 +15,8 @@ Weapon::Weapon(Equipment *e)
 	bonus = e->getBonus();
 }
 
-Weapon::Weapon(int i)
+Weapon::Weapon(string n, double c, string d, int b) : Equipment(n, c, d, b)
 {
-	bonus = i;
 }
 
 Weapon::~Weapon()

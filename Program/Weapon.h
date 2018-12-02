@@ -7,7 +7,7 @@ private:
 	
 public:
 	Weapon(Equipment*);
-	Weapon(int);
+	Weapon(string, double, string, int);
 	~Weapon();
 	void use(int*) override;
 	equipmentType eType() override;

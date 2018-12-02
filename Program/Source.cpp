@@ -4,7 +4,6 @@
 #include <string>
 #include <iomanip>
 #include "Character.h"
-#include "Weapon.h"
 #include "Source.h"
 
 using std::cout;
@@ -12,11 +11,13 @@ using std::cin;
 using std::endl;
 using std::setw;
 
+// func prototypes
 bool yesOrNo(string const prompt, string const options = "Y/N");
 void rules();
 CombatStats characterCreation(string*, CharacterType*);
 int displayMainMenu();
-void chatacterSheet(Character *);
+void chatacterSheet(Character*);
+void shop(Character*, Equipment**, int);
 
 // TODO: Clean up unused/dead code
 // TODO: Comment
@@ -49,6 +50,7 @@ int main()
 
 	// create the Player's Character
 	Character pc = Character(role, charName, charStats);
+	Character *pcPtr = &pc;
 	// new characters are created at level 0 then immediately leveled up
 	// to allow the player to spend some stat points for character custimization
 	if (isNewGame)
@@ -57,6 +59,36 @@ int main()
 	}
 	cout << pc.getName() << endl;
 	pc.displayStats();
+
+	// create items in game scope
+	int stockSize = 12;
+	// create some objects for shop inventory. Ideally, this should expand as the character levels up
+	Equipment **shopStock = new Equipment*[stockSize];
+	Weapon w1("Laser", 10.0, "A beam gun", 3);
+	Weapon w2("Blaster", 15.0, "A powerful energy gun", 5);
+	Weapon w3("Beam Sword", 15.0, "A sword made of energy", 5);
+	Weapon w4("PAL", 100.0, "Planetary Anihilation Laser", 20);
+	Armor a1("Flak Jacket", 5.0, "Offers mild protection", 2);
+	Armor a2("Power Suit", 20.0, "Offers medium protection", 7);
+	Armor a3("Mech Suit", 120.0, "A giant robot you can pilot", 25);
+	PowerUp p1("MedKit", 5.0, "Restores 5 health", 5);
+	PowerUp p2("Advanced MedKit", 10.0, "Restores 10 health", 10);
+	PowerUp p3("Steroids", 15.0, "Increases Strength by 2", 2);
+	PowerUp p4("Nueral Enhancer", 15.0, "Increases Accuracy by 2", 2);
+	PowerUp p5("Coffee", 15.0, "Increases Intellect by 2", 2);
+
+	shopStock[0] = &w1;
+	shopStock[1] = &w2;
+	shopStock[2] = &w3;
+	shopStock[3] = &w4;
+	shopStock[4] = &a1;
+	shopStock[5] = &a2;
+	shopStock[6] = &a3;
+	shopStock[7] = &p1;
+	shopStock[8] = &p2;
+	shopStock[9] = &p3;
+	shopStock[10] = &p4;
+	shopStock[11] = &p5;
 
 	// create the "game loop"
 	bool play = true;
@@ -73,7 +105,7 @@ int main()
 			break;
 		case 2:
 			//Shop
-			shop();
+			shop(pcPtr, shopStock, stockSize);
 			break;
 		case 3:
 			//Character Sheet
@@ -92,8 +124,11 @@ int main()
 		//TODO make this functionality
 		//saveGame();
 	}
-	cout << "Goodbye\n";
 
+	// remove the dynamic array
+	delete[] shopStock;
+
+	cout << "Goodbye\n";
 	system("pause");
 	return 0;
 }
@@ -174,15 +209,15 @@ void rules()
 		{
 			cout << "Bob : There are six core stats to keep track of.\n" <<
 				"\tStrength - this is your character's physical prowess and combat capability.\n" <<
-				"\t\tIt is the primary stat for strong attacks.\n" <<
+				"\tIt is the primary stat for strong attacks.\n" <<
 				"\tDefense - this is your character's ability to protect themselves from harm\n" <<
-				"\t\twhen an unfriendly alien attacks.\n" <<
+				"\twhen an unfriendly alien attacks.\n" <<
 				"\tSpeed - this is how quick your character is. It determines who goes first\n" <<
-				"\t\tin a combat, and also contributes to defending against attacks.\n" <<
+				"\tin a combat, and also contributes to defending against attacks.\n" <<
 				"\tIntellect - this is your character's relative intellegence. It is the\n" <<
-				"\t\tclever attacks.\n" <<
+				"\tclever attacks.\n" <<
 				"\tAccuracy - this is your character's ability to aim. Is is the primary stat" <<
-				"\t\tfor accurate attacks.\n" <<
+				"\tfor accurate attacks.\n" <<
 				"\tAnd possibly most importantly, Health - This is your character's well being.\n" <<
 				"\t\tIf this stat hits 0, your character dies and the game is over. Certain items\n" <<
 				"\t\tcan increase this stat (there is no cap), and leveling up will increase it\n" <<
@@ -268,16 +303,74 @@ CombatStats characterCreation(string *charName, CharacterType *role)
 
 int displayMainMenu()
 {
+	// clear the screen since this is a "new page"
+	system("cls");
 	int selection;
 	cout << "Main Menu\n";
-	cout << "1: Battle\n2: Shop\n3: View Character Sheet\n4: Exit";
+	cout << "1: Battle\n2: Shop\n3: View Character Sheet\n4: Exit\n";
 	cout << "Enter the number of your selection: ";
 	//TODO validate
 	cin >> selection;
 	return selection;
 }
 
-void shop()
+void shop(Character  *pc, Equipment **shopStock, int stockSize)
 {
+	//loop to allow the player to keep making purchases
+	bool loop = true;
+	int selection;
+	int doWhat;
+	while (loop)
+	{
+		// Clear the screen since this is a "new page"
+		system("cls");
+		cout << "Bob : Hello, " << pc->getName() << "! Welcome to the commisary!\n";
+		cout << "\tCome in, come in! Here's what I've got for sale:\n";
+		cout << std::setfill('*') << std::left << setw(3) << "ID" << std::left <<
+			setw(16) << "Item" << std::left << setw(7) << "Type" << setw(5) << 
+			"Cost\n";
+		cout << endl;
+		for (int i = 0; i < stockSize; ++i)
+		{
+			// put a space before the single digit rows
+			string rowEqualizer = (i < 9) ? " " : "";
+			cout << rowEqualizer;
+			cout << i + 1 << " ";
+			cout << std::left << std::setfill('-') << setw(16) << shopStock[i]->getName() <<
+				std::setfill('-') << setw(7) << shopStock[i]->eType() << std::setfill('-') <<
+				shopStock[i]->getCost() << endl;
+		}
+		cout << " 0 Back to Main Menu\n";
+		cout << "Current money: " << pc->getMoney() << endl;
 
+		cout << "\nBob : Anything catch your interest?\n" <<
+			"Enter the ID of the item you're interested in: ";
+		// TODO validate
+		cin >> selection;
+		if (selection == 0)
+		{
+			loop = false;
+			break;
+		}
+		// since the index had one added for the id display, decrement the selection by one to match the true index
+		--selection;
+		cout << "Enter 1 to Examine, 2 to Purchase, or 3 to go back: ";
+		cin >> doWhat;
+		switch (doWhat)
+		{
+		case 1:
+			cout << shopStock[selection]->getName() << endl;
+			cout << shopStock[selection]->getDescription() << " Bonus: " << shopStock[selection]->getBonus();
+			cout << endl;
+			system("pause");
+			break;
+		case 2:
+			pc->purchase(shopStock[selection]);
+			system("pause");
+			break;
+		case 3:
+			break;
+		}
+
+	}
 }

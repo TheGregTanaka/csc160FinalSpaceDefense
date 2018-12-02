@@ -2,9 +2,8 @@
 
 
 
-Armor::Armor(int i)
+Armor::Armor(string n, double c, string d, int b) : Equipment(n, c, d, b)
 {
-	bonus = i;
 }
 
 

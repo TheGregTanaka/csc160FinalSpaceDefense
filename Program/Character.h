@@ -72,7 +72,7 @@ public:
 	//methods
 	int attack();
 	bool defend();
-	void purchase();
+	void purchase(Equipment*);
 	void useItem(Equipment*, int);
 	void useItem(Weapon*);
 	void useItem(Armor*);

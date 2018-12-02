@@ -21,6 +21,7 @@ protected:
 	int bonus;
 public:
 	Equipment();
+	Equipment(string n, double c, string d, int b) : name(n), cost(c), description(d), bonus(b) {};
 	~Equipment();
 	virtual void use(int*) = 0;
 	virtual equipmentType eType() = 0;

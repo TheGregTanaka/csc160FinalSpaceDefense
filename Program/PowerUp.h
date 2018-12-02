@@ -17,7 +17,7 @@ class PowerUp :
 {
 public:
 	affectedStat which;
-	PowerUp(int);
+	PowerUp(string, double, string, int);
 	PowerUp(PowerUp*);
 	PowerUp(Equipment*);
 	~PowerUp();

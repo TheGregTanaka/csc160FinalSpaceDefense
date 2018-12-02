@@ -5,7 +5,7 @@ class Armor :
 {
 private:
 public:
-	Armor(int);
+	Armor(string, double, string, int);
 	Armor(Equipment*);
 	~Armor();
 	void use(int*) override;

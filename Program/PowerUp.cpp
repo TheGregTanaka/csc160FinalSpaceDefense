@@ -1,9 +1,8 @@
 #include "PowerUp.h"
 
 
-PowerUp::PowerUp(int i)
+PowerUp::PowerUp(string n, double c, string d, int b) : Equipment(n, c, d, b)
 {
-	bonus = i;
 }
 
 PowerUp::PowerUp(PowerUp *e)

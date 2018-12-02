@@ -93,12 +93,44 @@ bool Character::defend()
  * Used to make purchases from the commisary. Handles the spedning of money,
  * and adds items to inventory.
  */
-void Character::purchase()
+void Character::purchase(Equipment *e)
 {
+	double itemCost = e->getCost();
+	// Check that the player has enough money for the purchase - if not stop
+	if (itemCost > money)
+	{
+		std::cout << "Bob : You don't have enough money to buy that!\n";
+		std::cout << "Item cost: " << itemCost << " Current money: " << money << std::endl;
+		return;
+	}
+	// Check if there is room in the inventory - if not, stop
+	bool found = false;
+	int foundAt;
+	for (int i = 0; i < STARTING_INV_SIZE; ++i)
+	{
+		if (inventory[i]->eType() == EmptyType)
+		{
+			found = true;
+			foundAt = i;
+			break;
+		}
+	}
+	if (!found)
+	{
+		std::cout << "Your inventory is full and you cannot carry any more items!\n";
+		return;
+	}
+	// Subtact the cost of the item from the character's money
+	money -= itemCost;
+	// add the item to the inventory at the first EmptySlot
+	delete inventory[foundAt];
+	inventory[foundAt] = e;
+	std::cout << "You successfully purchased " << e->getName() << "!\n";
 }
 
 void Character::useItem(Equipment *e, int i)
 {
+	string itemName = e->getName();
 	switch (e->eType())
 	{
 	case WeaponType:
@@ -110,7 +142,7 @@ void Character::useItem(Equipment *e, int i)
 	case PowerUpType: //TODO make this better
 		std::cout << "\nBIG ERROR OCCURED\n";
 		break;
-	case EmptySlot:
+	case EmptyType:
 		std::cout << "There's no item to use!\n";
 	}
 }
@@ -211,12 +243,20 @@ void Character::displayCharSheet()
 		std::cout << std::setw(10) << getName() << std::setw(4) << getLevel() << std::endl;
 		std::cout << std::endl;
 		std::cout << "Money: " << getMoney() << std::endl;
-		string armor = (equipedArmor >= 0) ? inventory[equipedArmor]->getName() : "No Armor Equiped";
-		std::cout << armor;
-		std::cout << std::endl;
-		string weapon = (equipedWeapon >= 0) ? inventory[equipedWeapon]->getName() : "No Weapon Equiped";
-		std::cout << weapon;
-		std::cout << std::endl;
+		//string armor = (equipedArmor >= 0) ? inventory[equipedArmor]->getName() : "No Armor Equiped"; //receiving strange out-of-bounds behavior
+		string armor = "No Armor Equiped";
+		if (equipedArmor >= 0)
+		{
+			armor = inventory[equipedArmor]->getName();
+		}
+		std::cout << armor << std::endl;
+		//string weapon = (equipedWeapon >= 0) ? inventory[equipedWeapon]->getName() : "No Weapon Equiped"; receiving strange out-of-bounds behavior
+		string weapon = "No Weapon Equiped";
+		if (equipedWeapon >= 0)
+		{
+			weapon = inventory[equipedWeapon]->getName();
+		}
+		std::cout << weapon << std::endl;
 		displayStats();
 		// show inventory
 		std::cout << std::endl;
@@ -232,10 +272,10 @@ void Character::displayCharSheet()
 		std::cout << "Select an item to investigate or use. Enter 0 to return to the main menu: ";
 		//TODO - validate this
 		std::cin >> selection;
-		if (selection = 0)
+		if (selection == 0)
 		{
-			// end loop 
-			break;
+			//end loop
+			loop = false;
 		}
 		else
 		{
@@ -249,11 +289,16 @@ void Character::displayCharSheet()
 			switch (select)
 			{
 			case 1:
-				std::cout << inventory[selection]->getName() << std::endl;
-				std::cout << inventory[selection]->getDescription() << " Bonus: " << inventory[selection]->getBonus();
+			{	// creating a code block for this case allows variables to be declared in this scope
+				string itemName = inventory[selection]->getName();
+				string itemDescrip = inventory[selection]->getDescription();
+				int itemBonus = inventory[selection]->getBonus();
+				std::cout << itemName << std::endl;
+				std::cout << itemDescrip << " Bonus: " << itemBonus;
 				std::cout << std::endl;
 				system("pause");
 				break;
+			}
 			case 2:
 				if (inventory[selection]->eType() == PowerUpType)
 				{
@@ -275,7 +320,6 @@ void Character::displayCharSheet()
 				inventory[selection] = new EmptySlot();
 				break;
 			case 4:
-				loop = false;
 				break;
 			}
 		}
