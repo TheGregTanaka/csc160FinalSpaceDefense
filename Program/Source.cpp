@@ -183,7 +183,7 @@ bool yesOrNo(string const prompt, string const options)
 		entry = toupper(entry);
 		if ((entry != opt1 && entry != opt2) || cin.fail())
 		{
-			cout << "Must enter y or n!\n";
+			cout << "Must enter " << opt1 << " or " << opt2 << "!\n";
 			cin.clear();
 			cin.ignore(100, '\n');
 		}
