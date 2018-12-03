@@ -34,6 +34,11 @@ equipmentType Weapon::eType()
 	return WeaponType;
 }
 
+affectedStat Weapon::getWhich()
+{
+	return STR;
+}
+
 /*void use(Character *c)
 {
 	// raises character's `strength` stat

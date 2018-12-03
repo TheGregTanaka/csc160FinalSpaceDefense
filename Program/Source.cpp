@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
+#include <fstream>
 #include "Character.h"
 #include "Source.h"
 
@@ -10,6 +11,11 @@ using std::cout;
 using std::cin;
 using std::endl;
 using std::setw;
+using std::ofstream;
+using std::ifstream;
+
+// constants
+string GAME_DATA_FILE = "./SaveData.csv";
 
 // func prototypes
 bool yesOrNo(string const prompt, string const options = "Y/N");
@@ -18,6 +24,8 @@ CombatStats characterCreation(string*, CharacterType*);
 int displayMainMenu();
 void chatacterSheet(Character*);
 void shop(Character*, Equipment**, int);
+void saveGame(Character*);
+CombatStats loadGame(string*, CharacterType*, int*, double*, int*, int*);
 
 // TODO: Clean up unused/dead code
 // TODO: Comment
@@ -25,42 +33,7 @@ void shop(Character*, Equipment**, int);
 // TODO: Create requirement file - README would be ideal for this
 int main()
 {
-	//welcome the player to the game
-	cout << "SPAAAAAACE\n";
-	cout << "DEFENSE!!!\n\n";
-	bool isNewGame = yesOrNo("Press N for a New Game, or L to load", "N/L");
-	// declare some vars to get character data
-	CombatStats charStats;
-	CharacterType role;
-	string charName;
-
-	if (isNewGame)
-	{
-		// Display how to play
-		rules();
-		system("cls"); // esentailly runs the clear screen command to reduce visual clutter - not a portable solution, only works on windows
-		// create character
-		charStats = characterCreation(&charName, &role);
-	}
-	else
-	{
-		//TODO
-		// load game data from file
-	}
-
-	// create the Player's Character
-	Character pc = Character(role, charName, charStats);
-	Character *pcPtr = &pc;
-	// new characters are created at level 0 then immediately leveled up
-	// to allow the player to spend some stat points for character custimization
-	if (isNewGame)
-	{
-		pc.levelUp();
-	}
-	cout << pc.getName() << endl;
-	pc.displayStats();
-
-	// create items in game scope
+	// create items in game scope - this must be done prior to loading game data so the inventory can be loaded
 	int stockSize = 12;
 	// create some objects for shop inventory. Ideally, this should expand as the character levels up
 	Equipment **shopStock = new Equipment*[stockSize];
@@ -71,11 +44,11 @@ int main()
 	Armor a1("Flak Jacket", 5.0, "Offers mild protection", 2);
 	Armor a2("Power Suit", 20.0, "Offers medium protection", 7);
 	Armor a3("Mech Suit", 120.0, "A giant robot you can pilot", 25);
-	PowerUp p1("MedKit", 5.0, "Restores 5 health", 5);
-	PowerUp p2("Advanced MedKit", 10.0, "Restores 10 health", 10);
-	PowerUp p3("Steroids", 15.0, "Increases Strength by 2", 2);
-	PowerUp p4("Nueral Enhancer", 15.0, "Increases Accuracy by 2", 2);
-	PowerUp p5("Coffee", 15.0, "Increases Intellect by 2", 2);
+	PowerUp p1("MedKit", 5.0, "Restores 5 health", 5, HP);
+	PowerUp p2("Advanced MedKit", 10.0, "Restores 10 health", 10, HP);
+	PowerUp p3("Steroids", 15.0, "Increases Strength by 2", 2, STR);
+	PowerUp p4("Nueral Enhancer", 15.0, "Increases Accuracy by 2", 2, ACC);
+	PowerUp p5("Coffee", 15.0, "Increases Intellect by 2", 2, IQ);
 
 	shopStock[0] = &w1;
 	shopStock[1] = &w2;
@@ -89,6 +62,54 @@ int main()
 	shopStock[9] = &p3;
 	shopStock[10] = &p4;
 	shopStock[11] = &p5;
+
+	// this is where the fun begins
+	//welcome the player to the game
+	cout << "SPAAAAAACE\n";
+	cout << "DEFENSE!!!\n\n";
+	bool isNewGame = yesOrNo("Press N for a New Game, or L to load", "N/L");
+
+	// declare some vars to get character data
+	CombatStats charStats;
+	CharacterType role;
+	string charName;
+	int lvl;
+	double mon;
+	int equipWeap, equipArm;
+	int invCount;
+	Equipment** tmpInv;
+
+	if (isNewGame)
+	{
+		// Display how to play
+		rules();
+		system("cls"); // esentailly runs the clear screen command to reduce visual clutter - not a portable solution, only works on windows
+		// create character
+		charStats = characterCreation(&charName, &role);
+		// use constants to set certain things to defaults
+		lvl = 0;
+		mon = STARTING_MONEY;
+		equipWeap = -1;
+		equipArm = -1;
+	}
+	else
+	{
+		charStats = loadGame(&charName, &role, &lvl, &mon, &equipWeap, &equipArm);
+	}
+
+
+	// create the Player's Character
+	Character pc = Character(role, charName, lvl, charStats, mon, equipWeap, equipArm);
+	Character *pcPtr = &pc;
+	// new characters are created at level 0 then immediately leveled up
+	// to allow the player to spend some stat points for character custimization
+	if (isNewGame)
+	{
+		pc.levelUp();
+	}
+	cout << pc.getName() << endl;
+	pc.displayStats();
+
 
 	// create the "game loop"
 	bool play = true;
@@ -114,6 +135,10 @@ int main()
 		case 4:
 			play = false;
 			break;
+		//TODO REMOVE - FOR TESTING/DEBUGGING
+		case 5:
+			pc.receiveMoney(20);
+			break;
 		}
 		
 	}
@@ -122,7 +147,7 @@ int main()
 	if (save)
 	{
 		//TODO make this functionality
-		//saveGame();
+		saveGame(pcPtr);
 	}
 
 	// remove the dynamic array
@@ -374,3 +399,303 @@ void shop(Character  *pc, Equipment **shopStock, int stockSize)
 
 	}
 }
+
+//writes character data to a file
+void saveGame(Character *pc)
+{
+	// write all the data of the character to a game-save csv
+	// because the inventory set up is a little wonky with an array of pointers... TODO : Finish this thought
+	ofstream save;
+	save.open(GAME_DATA_FILE);
+	if (!save.is_open())
+	{
+		cout << "\nSome sort of error!\nGame not saved!\n";
+		//some sort of error
+	}
+	else
+	{
+
+		save << pc->getName() << "," << pc->getLevel() << "," << pc->getRole() <<
+			"," << pc->getHealth() << "," << pc->getStrength() << "," << 
+			pc->getDefense() << "," << pc->getSpeed() << "," << pc->getIntellect() <<
+			"," << pc->getAccuracy() << "," << pc->getMoney() << "," << 
+			pc->getEquipedWeapon() << "," << pc->getEquipedArmor() << "," <<
+			pc->getInventoryString() << endl;
+		//close file
+		save.close();
+	}
+}
+
+// TODO super inefficient.. fix this
+// TODO figure out a way to load inventory that actally works... Or possibly just give character money for the items?
+// reads data from the save file, and creates a character.
+CombatStats loadGame(string *charName, CharacterType *role, int *lvl, double *mon, int *equipWeap, int *equipArm)
+{
+	string line;
+	int fieldStart, fieldLen, fieldEnd;
+	int lineCount = 1;
+	/*string name;
+	int lvl;
+	int roleInt;
+	double mon;
+	int equipWeap, equipArm;
+	int invCount;
+	Equipment** tmpInv;*/
+	CombatStats cs;
+	int roleInt;
+	int hp, str, def, spd, iq, acc;
+	ifstream load;
+	string delim = ","; // since game file is a csv, split on commas
+	string tmp;
+	
+
+	load.open(GAME_DATA_FILE);
+	if (load.is_open())
+	{
+		int selection;
+		while (getline(load, line))
+		{
+			fieldStart = 0;
+			fieldEnd = line.find(delim);
+			*charName = (line.substr(fieldStart, fieldEnd));
+			// advance to the next "field" - data between two commas - field
+			// starts after the previous fieldEnd comma
+			fieldStart = fieldEnd + 1;
+			fieldEnd = (line.find(delim, fieldStart)); // finds the next comma
+			fieldLen = fieldEnd - fieldStart;
+			// starting from one character after the second comma, return up until the next comma
+			tmp = line.substr(fieldStart, fieldLen);
+			*lvl = stoi(tmp);
+			// output the first two fields of each line - character name and lvl
+			// lineCount utilizes the post-increment operator to output current
+			// value then increment for the next loop
+			cout << lineCount++ << " " << *charName << " lvl: " << *lvl << endl;
+		}
+		cout << "Enter the number of the character you would like to load.";
+		// TODO validate
+		cin >> selection;
+
+		/*tmpInv = new Equipment*[STARTING_INV_SIZE];
+		for (int i = 0; i < STARTING_INV_SIZE; ++i)
+		{
+			tmpInv[i] = new EmptySlot();
+		}*/
+
+		// Go back to begining of file
+		load.clear();
+		load.seekg(0, ifstream::beg);
+
+		// TODO: Refactor this to read from a txt delimited by spaces... That
+		// would be much shorter and easier..... Will need to remove spaces from
+		// item names and update save as well
+		lineCount = 1;
+		// loop to selected line, and read all the data from that line
+		while (getline(load, line))
+		{
+			// this is super WET and I don't like it, but I couldn't find a good way to parse a csv that
+			// wouldn't have required pretty extensive copying from stackoverflow or using lots of tools not covered in class
+			if (lineCount == selection)
+			{
+				fieldStart = 0;
+				fieldEnd = line.find(delim);
+				*charName = (line.substr(fieldStart, fieldEnd));
+
+				// advance to next field
+				fieldStart = fieldEnd + 1;
+				fieldEnd = (line.find(delim, fieldStart));
+				fieldLen = fieldEnd - fieldStart;
+				tmp = line.substr(fieldStart, fieldLen);
+				*lvl = stoi(tmp);
+
+				// advance to next field
+				fieldStart = fieldEnd + 1;
+				fieldEnd = (line.find(delim, fieldStart));
+				fieldLen = fieldEnd - fieldStart;
+				tmp = line.substr(fieldStart, fieldLen);
+				roleInt = stoi(line.substr(fieldStart, fieldLen));
+				*role = (CharacterType)roleInt;
+
+				// advance to next field
+				fieldStart = fieldEnd + 1;
+				fieldEnd = (line.find(delim, fieldStart));
+				fieldLen = fieldEnd - fieldStart;
+				tmp = line.substr(fieldStart, fieldLen);
+				hp = stoi(tmp);
+
+				// advance to next field
+				fieldStart = fieldEnd + 1;
+				fieldEnd = (line.find(delim, fieldStart));
+				fieldLen = fieldEnd - fieldStart;
+				tmp = line.substr(fieldStart, fieldLen);
+				str = stoi(tmp);
+
+				// advance to next field
+				fieldStart = fieldEnd + 1;
+				fieldEnd = (line.find(delim, fieldStart));
+				fieldLen = fieldEnd - fieldStart;
+				tmp = line.substr(fieldStart, fieldLen);
+				def = stoi(tmp);
+
+				// advance to next field
+				fieldStart = fieldEnd + 1;
+				fieldEnd = (line.find(delim, fieldStart));
+				fieldLen = fieldEnd - fieldStart;
+				tmp = line.substr(fieldStart, fieldLen);
+				spd = stoi(tmp);
+
+				// advance to next field
+				fieldStart = fieldEnd + 1;
+				fieldEnd = (line.find(delim, fieldStart));
+				fieldLen = fieldEnd - fieldStart;
+				tmp = line.substr(fieldStart, fieldLen);
+				iq = stoi(tmp);
+
+				// advance to next field
+				fieldStart = fieldEnd + 1;
+				fieldEnd = (line.find(delim, fieldStart));
+				fieldLen = fieldEnd - fieldStart;
+				tmp = line.substr(fieldStart, fieldLen);
+				acc = stoi(tmp);
+
+				// advance to next field
+				fieldStart = fieldEnd + 1;
+				fieldEnd = (line.find(delim, fieldStart));
+				fieldLen = fieldEnd - fieldStart;
+				tmp = line.substr(fieldStart, fieldLen);
+				*mon = stod(tmp);
+
+				// advance to next field
+				fieldStart = fieldEnd + 1;
+				fieldEnd = (line.find(delim, fieldStart));
+				fieldLen = fieldEnd - fieldStart;
+				tmp = line.substr(fieldStart, fieldLen);
+				*equipWeap = stoi(tmp);
+
+				// advance to next field
+				fieldStart = fieldEnd + 1;
+				fieldEnd = (line.find(delim, fieldStart));
+				fieldLen = fieldEnd - fieldStart;
+				tmp = line.substr(fieldStart, fieldLen);
+				*equipArm = stoi(tmp);
+
+				// advance to next field
+				/*fieldStart = fieldEnd + 1;
+				fieldEnd = (line.find(delim, fieldStart));
+				fieldLen = fieldEnd - fieldStart;
+				tmp = line.substr(fieldStart, fieldLen);
+				invCount = stoi(tmp);
+
+				// build the inventory dynamically
+				//tmpInv = new Equipment*[invCount]; already created in this scope
+				string itemName;
+				for (int i = 0; i < invCount; ++i)
+				{
+					// advance to next field
+					fieldStart = fieldEnd + 1;
+					fieldEnd = (line.find(delim, fieldStart));
+					fieldLen = fieldEnd - fieldStart;
+					itemName = line.substr(fieldStart, fieldLen);
+					// another highly inelegant solution, but again couldn't find a better way that wasn't someone else's algorithm
+					if (itemName == "Laser")
+					{ 
+						delete tmpInv[i];
+						tmpInv[i] = items[0];
+					}
+					else if (itemName == "Blaster")
+					{
+						delete tmpInv[i];
+						tmpInv[i] = items[1];
+					}
+					else if (itemName == "Beam Sword")
+					{
+						delete tmpInv[i];
+						tmpInv[i] = items[2];
+					}
+					else if (itemName == "PAL")
+					{
+						delete tmpInv[i];
+						tmpInv[i] = items[3];
+					}
+					else if (itemName == "Flak Jacket")
+					{
+						delete tmpInv[i];
+						tmpInv[i] = items[4];
+					}
+					else if (itemName == "Power Suit")
+					{
+						delete tmpInv[i];
+						tmpInv[i] = items[5];
+					}
+					else if (itemName == "Mech Suit")
+					{
+						delete tmpInv[i];
+						tmpInv[i] = items[6];
+					}
+					else if (itemName == "MedKit")
+					{
+						delete tmpInv[i];
+						tmpInv[i] = items[7];
+					}
+					else if (itemName == "Advanced MedKit")
+					{
+						delete tmpInv[i];
+						tmpInv[i] = items[8];
+					}
+					else if (itemName == "Steroids")
+					{
+						delete tmpInv[i];
+						tmpInv[i] = items[9];
+					}
+					else if (itemName == "Nueral Enhancer")
+					{
+						delete tmpInv[i];
+						tmpInv[i] = items[10];
+					}
+					else if (itemName == "Coffee")
+					{
+						delete tmpInv[i];
+						tmpInv[i] = items[11];
+					}
+					else
+					{
+						delete tmpInv[i];
+						tmpInv[i] = new EmptySlot();
+					}
+				}*/
+			}
+			else
+			{
+				hp = 0;
+				str = 0;
+				def = 0;
+				spd = 0;
+				iq = 0;
+				acc = 0;
+			}
+		}
+		load.close();
+
+		
+		cs.health = hp;
+		cs.strength = str;
+		cs.defense = def;
+		cs.speed = spd;
+		cs.intellect = iq;
+		cs.accuracy = acc;
+		cs.isTrained = true;
+		cs.isAlive = true;
+		
+		//remove dynamic array of pointers
+		// because it's not just an array of objects, delete[] did not work
+		/*for (int i = 0; i < STARTING_INV_SIZE; ++i)
+		{
+			delete tmpInv[i];
+		}*/
+	}
+	else
+	{
+		throw std::runtime_error("Unabnle to open file! Game could not load!\n");
+	}
+	return cs;
+}
+

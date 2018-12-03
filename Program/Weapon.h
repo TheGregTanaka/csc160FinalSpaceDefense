@@ -11,6 +11,7 @@ public:
 	~Weapon();
 	void use(int*) override;
 	equipmentType eType() override;
+	affectedStat getWhich() override;
 	//void armYourself(Character*);
 };
 

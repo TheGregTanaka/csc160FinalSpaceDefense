@@ -1,13 +1,32 @@
 #pragma once
 #include "Character.h"
 
+/*Character::Character() 
+{
+	inventory = new Equipment*[STARTING_INV_SIZE];
+	for (int i = 0; i < STARTING_INV_SIZE; ++i)
+	{
+		inventory[i] = new EmptySlot();
+	}
+}*/
+
 /** 
  * Constructor to be used for a new character. Level is set to 0 and Money is the default starting value
  * Using the initializer syntax demonstrated by Kate Gregory in pluralsight 5 - user defined type
  */
-Character::Character(CharacterType r, string charName, CombatStats charStats) :
+/*Character::Character(CharacterType r, string charName, CombatStats charStats) :
 	role(r), name(charName), level(0), stats(charStats), money(STARTING_MONEY),
 	inventory(new Equipment*[STARTING_INV_SIZE]), equipedArmor(-1), equipedWeapon(-1)
+{
+	for (int i = 0; i < STARTING_INV_SIZE; ++i)
+	{
+		inventory[i] = new EmptySlot();
+	}
+}*/
+Character::Character(CharacterType r, string charName, int lvl, CombatStats charStats,
+	double m, int ew, int ea) :
+	role(r), name(charName), level(lvl), stats(charStats), money(m), 
+	inventory(new Equipment*[STARTING_INV_SIZE]), equipedWeapon(ew), equipedArmor(ea)
 {
 	for (int i = 0; i < STARTING_INV_SIZE; ++i)
 	{
@@ -20,17 +39,39 @@ Character::Character(CharacterType r, string charName, CombatStats charStats) :
  * and inventory, to allow for loading an existing character.
  * Using the initializer syntax demonstrated by Kate Gregory in pluralsight 5 - user defined types
  */
-Character::Character(CharacterType r, string charName, int lvl, CombatStats charStats, double m, Equipment** e) :
-	role(r), name(charName), level(lvl), stats(charStats), money(m), inventory(e) 
-{}
+Character::Character(CharacterType r, string charName, int lvl, CombatStats charStats, double m, int ew, int ea, int invSize, Equipment **e) :
+	role(r), name(charName), level(lvl), stats(charStats), money(m), equipedWeapon(ew), equipedArmor(ea)
+{
+	inventory = new Equipment*[invSize];
+	for (int i = 0; i < invSize; ++i)
+	{
+		inventory[i] = e[i];
+	}
+}
 
 Character::~Character()
 {
-	delete[] inventory;
+	delete[] this->inventory;
+}
+
+//this is a fake getter - I didn't want to return the memory location of a private
+// member allowing it to be incorrectly manipulated, and there wasn't much value
+// to creating a deep copy for what I needed. This string is mainly used for saving
+// returns comma delimited string starting with the inventory size - this will be
+// useful if the inventory becomes resizable
+string Character::getInventoryString()
+{
+	int size = STARTING_INV_SIZE; // if the inventory becomes resizable fix this
+	string itemString = std::to_string(size) + ",";
+	for (int i = 0; i < STARTING_INV_SIZE; ++i)
+	{
+		itemString += inventory[i]->getName() + ",";
+	}
+
+	return itemString;
 }
 
 // public methods
-
 /**
  * Determines the power of an attack. This power is used both to determine if
  * the attack successfully landed, as well as calculate damge.
@@ -147,6 +188,42 @@ void Character::useItem(Equipment *e, int i)
 	}
 }
 
+void Character::useItem(PowerUp *p, int invPos)
+{
+	int effect = 0;
+	p->use(&effect);
+	affectedStat efStat = p->getWhich();
+	switch (efStat)
+	{
+	case HP:
+		stats.health += effect;
+		break;
+	case STR:
+		stats.strength += effect;
+		break;
+	case DEF:
+		stats.defense += effect;
+		break;
+	case SPD:
+		stats.speed += effect;
+		break;
+	case IQ:
+		stats.intellect += effect;
+		break;
+	case ACC:
+		stats.accuracy += effect;
+		break;
+	}
+	// remove powerup from inventory
+	//delete inventory[invPos];
+	inventory[invPos] = new EmptySlot();
+}
+
+void Character::receiveMoney(double m)
+{
+	money += m;
+}
+
 /**
  * Allows any equipment item to be used
  */
@@ -169,34 +246,6 @@ void Character::useItem(Weapon *e)
 
 void Character::useItem(Armor *)
 {
-}
-
-void Character::useItem(PowerUp *p)
-{
-	int effect = 0;
-	p->use(&effect);
-	affectedStat efStat = p->which;
-	switch (efStat)
-	{
-	case HP:
-		stats.health += effect;
-		break;
-	case STR:
-		stats.strength += effect;
-		break;
-	case DEF:
-		stats.defense += effect;
-		break;
-	case SPD:
-		stats.speed += effect;
-		break;
-	case IQ:
-		stats.intellect += effect;
-		break;
-	case ACC:
-		stats.accuracy += effect;
-		break;
-	}
 }
 
 //acts like a setter that sets weapon to the none-equiped value
@@ -302,8 +351,10 @@ void Character::displayCharSheet()
 			case 2:
 				if (inventory[selection]->eType() == PowerUpType)
 				{
+					affectedStat effect = inventory[selection]->getWhich();
 					PowerUp p = PowerUp(inventory[selection]);
-					useItem(&p);
+					p.setWhich(effect);
+					useItem(&p, selection);
 				}
 				else
 				{
@@ -324,6 +375,11 @@ void Character::displayCharSheet()
 			}
 		}
 	}
+}
+
+void Character::invDebug()
+{
+	std::cout << getInventoryString() << std::endl;
 }
 
 // private methods

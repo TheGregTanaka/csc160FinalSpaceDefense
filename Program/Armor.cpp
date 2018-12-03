@@ -34,3 +34,8 @@ equipmentType Armor::eType()
 {
 	return ArmorType;
 }
+
+affectedStat Armor::getWhich()
+{
+	return DEF;
+}

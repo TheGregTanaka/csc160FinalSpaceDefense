@@ -43,8 +43,10 @@ private:
 	void addItemToInventory(Equipment*);
 	void increaseStats(int);
 public:
-	Character(CharacterType, string, CombatStats);
-	Character(CharacterType, string, int, CombatStats, double, Equipment**);
+	//Character();
+	//Character(CharacterType, string, CombatStats);
+	Character(CharacterType, string, int, CombatStats, double, int, int);
+	Character(CharacterType, string, int, CombatStats, double, int, int, int, Equipment**);
 	~Character();
 	// getters
 	string getName() { return name; };
@@ -62,7 +64,9 @@ public:
 	double getMoney() { return money; };
 	int getEquipedWeapon() { return equipedWeapon; };
 	int getEquipedArmor() { return equipedArmor; };
+	string getInventoryString();
 	// setters
+	void setName(string s) { name = s; };
 	void setHealth(int h) { stats.health = h; };
 	void setStrength(int s) { stats.strength = s; };
 	void setDefense(int d) { stats.defense = d; };
@@ -76,7 +80,8 @@ public:
 	void useItem(Equipment*, int);
 	void useItem(Weapon*);
 	void useItem(Armor*);
-	void useItem(PowerUp*);
+	void useItem(PowerUp*, int);
+	void receiveMoney(double m);
 	void removeWeapon();
 	void removeArmor();
 	void levelUp();
@@ -84,4 +89,5 @@ public:
 	void displayCharSheet();
 	//template <class Type>
 	//void useItem(Type*);
+	void invDebug();
 };
