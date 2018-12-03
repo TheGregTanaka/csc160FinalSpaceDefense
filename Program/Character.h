@@ -43,8 +43,9 @@ private:
 	void addItemToInventory(Equipment*);
 	void increaseStats(int);
 public:
-	Character();
-	Character(CharacterType, string, CombatStats);
+	//Character();
+	//Character(CharacterType, string, CombatStats);
+	Character(CharacterType, string, int, CombatStats, double, int, int);
 	Character(CharacterType, string, int, CombatStats, double, int, int, int, Equipment**);
 	~Character();
 	// getters

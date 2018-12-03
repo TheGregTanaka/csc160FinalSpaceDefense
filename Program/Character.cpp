@@ -1,22 +1,32 @@
 #pragma once
 #include "Character.h"
 
-Character::Character() 
+/*Character::Character() 
 {
 	inventory = new Equipment*[STARTING_INV_SIZE];
 	for (int i = 0; i < STARTING_INV_SIZE; ++i)
 	{
 		inventory[i] = new EmptySlot();
 	}
-}
+}*/
 
 /** 
  * Constructor to be used for a new character. Level is set to 0 and Money is the default starting value
  * Using the initializer syntax demonstrated by Kate Gregory in pluralsight 5 - user defined type
  */
-Character::Character(CharacterType r, string charName, CombatStats charStats) :
+/*Character::Character(CharacterType r, string charName, CombatStats charStats) :
 	role(r), name(charName), level(0), stats(charStats), money(STARTING_MONEY),
 	inventory(new Equipment*[STARTING_INV_SIZE]), equipedArmor(-1), equipedWeapon(-1)
+{
+	for (int i = 0; i < STARTING_INV_SIZE; ++i)
+	{
+		inventory[i] = new EmptySlot();
+	}
+}*/
+Character::Character(CharacterType r, string charName, int lvl, CombatStats charStats,
+	double m, int ew, int ea) :
+	role(r), name(charName), level(lvl), stats(charStats), money(m), 
+	inventory(new Equipment*[STARTING_INV_SIZE]), equipedWeapon(ew), equipedArmor(ea)
 {
 	for (int i = 0; i < STARTING_INV_SIZE; ++i)
 	{
