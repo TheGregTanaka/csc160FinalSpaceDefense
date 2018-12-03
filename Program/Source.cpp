@@ -406,7 +406,8 @@ void saveGame(Character *pc)
 	// write all the data of the character to a game-save csv
 	// because the inventory set up is a little wonky with an array of pointers... TODO : Finish this thought
 	ofstream save;
-	save.open(GAME_DATA_FILE);
+	//ofstream::app allows appending to the end of file so as to not wipe out previous game data
+	save.open(GAME_DATA_FILE, ofstream::app);
 	if (!save.is_open())
 	{
 		cout << "\nSome sort of error!\nGame not saved!\n";
@@ -434,20 +435,12 @@ CombatStats loadGame(string *charName, CharacterType *role, int *lvl, double *mo
 	string line;
 	int fieldStart, fieldLen, fieldEnd;
 	int lineCount = 1;
-	/*string name;
-	int lvl;
-	int roleInt;
-	double mon;
-	int equipWeap, equipArm;
-	int invCount;
-	Equipment** tmpInv;*/
 	CombatStats cs;
 	int roleInt;
 	int hp, str, def, spd, iq, acc;
 	ifstream load;
-	string delim = ","; // since game file is a csv, split on commas
-	string tmp;
-	
+	string delim = " ";
+	string tmp, tmpLvl;
 
 	load.open(GAME_DATA_FILE);
 	if (load.is_open())
@@ -457,19 +450,18 @@ CombatStats loadGame(string *charName, CharacterType *role, int *lvl, double *mo
 		{
 			fieldStart = 0;
 			fieldEnd = line.find(delim);
-			*charName = (line.substr(fieldStart, fieldEnd));
-			// advance to the next "field" - data between two commas - field
-			// starts after the previous fieldEnd comma
+			tmp = (line.substr(fieldStart, fieldEnd));
+			// advance to the next "field" - data between two spaces - field
+			// starts after the previous fieldEnd space
 			fieldStart = fieldEnd + 1;
-			fieldEnd = (line.find(delim, fieldStart)); // finds the next comma
+			fieldEnd = (line.find(delim, fieldStart)); // finds the next space
 			fieldLen = fieldEnd - fieldStart;
-			// starting from one character after the second comma, return up until the next comma
-			tmp = line.substr(fieldStart, fieldLen);
-			*lvl = stoi(tmp);
+			// starting from one character after the second space, return up until the next space
+			tmpLvl = line.substr(fieldStart, fieldLen);
 			// output the first two fields of each line - character name and lvl
 			// lineCount utilizes the post-increment operator to output current
 			// value then increment for the next loop
-			cout << lineCount++ << " " << *charName << " lvl: " << *lvl << endl;
+			cout << lineCount++ << " " << tmp << " - lvl: " << tmpLvl << endl;
 		}
 		cout << "Enter the number of the character you would like to load.";
 		// TODO validate
