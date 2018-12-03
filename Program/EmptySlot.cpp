@@ -4,7 +4,7 @@
 
 EmptySlot::EmptySlot()
 {
-	name = "Empty Slot";
+	name = "EmptySlot";
 	description = "There is no item in this slot";
 	bonus = 0;
 }

@@ -57,15 +57,15 @@ Character::~Character()
 //this is a fake getter - I didn't want to return the memory location of a private
 // member allowing it to be incorrectly manipulated, and there wasn't much value
 // to creating a deep copy for what I needed. This string is mainly used for saving
-// returns comma delimited string starting with the inventory size - this will be
+// returns space delimited string starting with the inventory size - this will be
 // useful if the inventory becomes resizable
 string Character::getInventoryString()
 {
 	int size = STARTING_INV_SIZE; // if the inventory becomes resizable fix this
-	string itemString = std::to_string(size) + ",";
+	string itemString = std::to_string(size) + " ";
 	for (int i = 0; i < STARTING_INV_SIZE; ++i)
 	{
-		itemString += inventory[i]->getName() + ",";
+		itemString += inventory[i]->getName() + " ";
 	}
 
 	return itemString;
@@ -332,46 +332,53 @@ void Character::displayCharSheet()
 			--selection;
 			// check what the player wants to do with the item
 			int select;
-			std::cout << "Enter 1 to Examine, 2 to Use/Equip, 3 to Discard, or 4 to go back: ";
-			// TODO validate
-			std::cin >> select;
-			switch (select)
+			if (inventory[selection]->eType() == EmptyType)
 			{
-			case 1:
-			{	// creating a code block for this case allows variables to be declared in this scope
-				string itemName = inventory[selection]->getName();
-				string itemDescrip = inventory[selection]->getDescription();
-				int itemBonus = inventory[selection]->getBonus();
-				std::cout << itemName << std::endl;
-				std::cout << itemDescrip << " Bonus: " << itemBonus;
-				std::cout << std::endl;
+				std::cout << "There's no item to use!\n";
 				system("pause");
-				break;
 			}
-			case 2:
-				if (inventory[selection]->eType() == PowerUpType)
+			else
+			{
+				std::cout << "Enter 1 to Examine, 2 to Use/Equip, 3 to Discard, or 4 to go back: ";
+				// TODO validate
+				std::cin >> select;
+				switch (select)
 				{
-					affectedStat effect = inventory[selection]->getWhich();
-					PowerUp p = PowerUp(inventory[selection]);
-					p.setWhich(effect);
-					useItem(&p, selection);
+				case 1:
+				{	// creating a code block for this case allows variables to be declared in this scope
+					string itemName = inventory[selection]->getName();
+					string itemDescrip = inventory[selection]->getDescription();
+					int itemBonus = inventory[selection]->getBonus();
+					std::cout << itemName << std::endl;
+					std::cout << itemDescrip << " Bonus: " << itemBonus;
+					std::cout << std::endl;
+					system("pause");
+					break;
 				}
-				else
-				{
-					useItem(inventory[selection], selection);
+				case 2:
+					if (inventory[selection]->eType() == PowerUpType)
+					{
+						affectedStat effect = inventory[selection]->getWhich();
+						PowerUp p = PowerUp(inventory[selection]);
+						p.setWhich(effect);
+						useItem(&p, selection);
+					}
+					else
+					{
+						useItem(inventory[selection], selection);
+					}
+					break;
+				case 3:
+					//discard item
+					// deletes the existing pointer
+					delete inventory[selection];
+					// dynamically create a new empty slot here to prevent bad pointer exceptions
+					// and display nicely
+					inventory[selection] = new EmptySlot();
+					break;
+				case 4:
+					break;
 				}
-				system("pause");
-				break;
-			case 3:
-				//discard item
-				// deletes the existing pointer
-				delete inventory[selection];
-				// dynamically create a new empty slot here to prevent bad pointer exceptions
-				// and display nicely
-				inventory[selection] = new EmptySlot();
-				break;
-			case 4:
-				break;
 			}
 		}
 	}
