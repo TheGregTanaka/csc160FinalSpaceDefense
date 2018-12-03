@@ -416,13 +416,6 @@ void saveGame(Character *pc)
 	}
 	else
 	{
-
-		/*save << pc->getName() << "," << pc->getLevel() << "," << pc->getRole() <<
-			"," << pc->getHealth() << "," << pc->getStrength() << "," << 
-			pc->getDefense() << "," << pc->getSpeed() << "," << pc->getIntellect() <<
-			"," << pc->getAccuracy() << "," << pc->getMoney() << "," << 
-			pc->getEquipedWeapon() << "," << pc->getEquipedArmor() << "," <<
-			pc->getInventoryString() << endl;*/
 		save << pc->getName() << " " << pc->getLevel() << " " << pc->getRole() <<
 			" " << pc->getHealth() << " " << pc->getStrength() << " " <<
 			pc->getDefense() << " " << pc->getSpeed() << " " << pc->getIntellect() <<
@@ -454,8 +447,7 @@ CombatStats loadGame(string *charName, CharacterType *role, int *lvl, double *mo
 		int selection;
 		while (getline(load, line))
 		{
-			
-			/*fieldStart = 0;
+			fieldStart = 0;
 			fieldEnd = line.find(delim);
 			tmp = (line.substr(fieldStart, fieldEnd));
 			// advance to the next "field" - data between two spaces - field
@@ -469,8 +461,6 @@ CombatStats loadGame(string *charName, CharacterType *role, int *lvl, double *mo
 			// lineCount utilizes the post-increment operator to output current
 			// value then increment for the next loop
 			cout << lineCount++ << " " << tmp << " - lvl: " << tmpLvl << endl;
-			*/
-			cout << lineCount++ << " " << line << endl;
 		}
 		cout << "Enter the number of the character you would like to load.";
 		// TODO validate
