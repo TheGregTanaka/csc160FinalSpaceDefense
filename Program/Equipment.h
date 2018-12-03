@@ -11,6 +11,15 @@ enum equipmentType
 	PowerUpType,
 	EmptyType
 };
+enum affectedStat
+{
+	HP,
+	STR,
+	DEF,
+	SPD,
+	IQ,
+	ACC
+};
 
 class Equipment
 {
@@ -25,6 +34,7 @@ public:
 	~Equipment();
 	virtual void use(int*) = 0;
 	virtual equipmentType eType() = 0;
+	virtual affectedStat getWhich() = 0;
 	string getName() { return name; };
 	double getCost() { return cost; };
 	string getDescription() { return description; };

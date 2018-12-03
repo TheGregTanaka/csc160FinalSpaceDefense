@@ -80,7 +80,8 @@ public:
 	void useItem(Equipment*, int);
 	void useItem(Weapon*);
 	void useItem(Armor*);
-	void useItem(PowerUp*);
+	void useItem(PowerUp*, int);
+	void receiveMoney(double m);
 	void removeWeapon();
 	void removeArmor();
 	void levelUp();

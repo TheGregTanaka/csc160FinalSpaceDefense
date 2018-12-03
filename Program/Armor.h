@@ -10,5 +10,6 @@ public:
 	~Armor();
 	void use(int*) override;
 	equipmentType eType() override;
+	affectedStat getWhich() override;
 };
 

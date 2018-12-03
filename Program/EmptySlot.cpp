@@ -22,3 +22,8 @@ equipmentType EmptySlot::eType()
 {
 	return EmptyType;
 }
+
+affectedStat EmptySlot::getWhich()
+{
+	throw std::runtime_error("Calling getWhich() on EmptySlot!");
+}

@@ -51,11 +51,7 @@ Character::Character(CharacterType r, string charName, int lvl, CombatStats char
 
 Character::~Character()
 {
-	//delete[] this->inventory;
-	for (int i = 0; i < STARTING_INV_SIZE; ++i)
-	{
-		delete inventory[i];
-	}
+	delete[] this->inventory;
 }
 
 //this is a fake getter - I didn't want to return the memory location of a private
@@ -192,6 +188,42 @@ void Character::useItem(Equipment *e, int i)
 	}
 }
 
+void Character::useItem(PowerUp *p, int invPos)
+{
+	int effect = 0;
+	p->use(&effect);
+	affectedStat efStat = p->getWhich();
+	switch (efStat)
+	{
+	case HP:
+		stats.health += effect;
+		break;
+	case STR:
+		stats.strength += effect;
+		break;
+	case DEF:
+		stats.defense += effect;
+		break;
+	case SPD:
+		stats.speed += effect;
+		break;
+	case IQ:
+		stats.intellect += effect;
+		break;
+	case ACC:
+		stats.accuracy += effect;
+		break;
+	}
+	// remove powerup from inventory
+	//delete inventory[invPos];
+	inventory[invPos] = new EmptySlot();
+}
+
+void Character::receiveMoney(double m)
+{
+	money += m;
+}
+
 /**
  * Allows any equipment item to be used
  */
@@ -214,34 +246,6 @@ void Character::useItem(Weapon *e)
 
 void Character::useItem(Armor *)
 {
-}
-
-void Character::useItem(PowerUp *p)
-{
-	int effect = 0;
-	p->use(&effect);
-	affectedStat efStat = p->which;
-	switch (efStat)
-	{
-	case HP:
-		stats.health += effect;
-		break;
-	case STR:
-		stats.strength += effect;
-		break;
-	case DEF:
-		stats.defense += effect;
-		break;
-	case SPD:
-		stats.speed += effect;
-		break;
-	case IQ:
-		stats.intellect += effect;
-		break;
-	case ACC:
-		stats.accuracy += effect;
-		break;
-	}
 }
 
 //acts like a setter that sets weapon to the none-equiped value
@@ -347,8 +351,10 @@ void Character::displayCharSheet()
 			case 2:
 				if (inventory[selection]->eType() == PowerUpType)
 				{
+					affectedStat effect = inventory[selection]->getWhich();
 					PowerUp p = PowerUp(inventory[selection]);
-					useItem(&p);
+					p.setWhich(effect);
+					useItem(&p, selection);
 				}
 				else
 				{

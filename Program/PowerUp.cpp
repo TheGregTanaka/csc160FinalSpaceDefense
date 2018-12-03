@@ -1,7 +1,7 @@
 #include "PowerUp.h"
 
 
-PowerUp::PowerUp(string n, double c, string d, int b) : Equipment(n, c, d, b)
+PowerUp::PowerUp(string n, double c, string d, int b, affectedStat w) : Equipment(n, c, d, b), which(w)
 {
 }
 
@@ -28,8 +28,9 @@ PowerUp::~PowerUp()
 {
 }
 
-void PowerUp::use(int *)
+void PowerUp::use(int *i)
 {
+	*i += bonus;
 }
 
 equipmentType PowerUp::eType()

@@ -44,11 +44,11 @@ int main()
 	Armor a1("Flak Jacket", 5.0, "Offers mild protection", 2);
 	Armor a2("Power Suit", 20.0, "Offers medium protection", 7);
 	Armor a3("Mech Suit", 120.0, "A giant robot you can pilot", 25);
-	PowerUp p1("MedKit", 5.0, "Restores 5 health", 5);
-	PowerUp p2("Advanced MedKit", 10.0, "Restores 10 health", 10);
-	PowerUp p3("Steroids", 15.0, "Increases Strength by 2", 2);
-	PowerUp p4("Nueral Enhancer", 15.0, "Increases Accuracy by 2", 2);
-	PowerUp p5("Coffee", 15.0, "Increases Intellect by 2", 2);
+	PowerUp p1("MedKit", 5.0, "Restores 5 health", 5, HP);
+	PowerUp p2("Advanced MedKit", 10.0, "Restores 10 health", 10, HP);
+	PowerUp p3("Steroids", 15.0, "Increases Strength by 2", 2, STR);
+	PowerUp p4("Nueral Enhancer", 15.0, "Increases Accuracy by 2", 2, ACC);
+	PowerUp p5("Coffee", 15.0, "Increases Intellect by 2", 2, IQ);
 
 	shopStock[0] = &w1;
 	shopStock[1] = &w2;
@@ -130,12 +130,14 @@ int main()
 			break;
 		case 3:
 			//Character Sheet
-			pc.invDebug();
-			system("pause");
 			pc.displayCharSheet();
 			break;
 		case 4:
 			play = false;
+			break;
+		//TODO REMOVE - FOR TESTING/DEBUGGING
+		case 5:
+			pc.receiveMoney(20);
 			break;
 		}
 		
