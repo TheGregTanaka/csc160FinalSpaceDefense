@@ -15,7 +15,8 @@ using std::ofstream;
 using std::ifstream;
 
 // constants
-string GAME_DATA_FILE = "./SaveData.csv";
+//string GAME_DATA_FILE = "./SaveData.csv";
+string GAME_DATA_FILE = "./SaveData.txt";
 
 // func prototypes
 bool yesOrNo(string const prompt, string const options = "Y/N");
@@ -39,15 +40,15 @@ int main()
 	Equipment **shopStock = new Equipment*[stockSize];
 	Weapon w1("Laser", 10.0, "A beam gun", 3);
 	Weapon w2("Blaster", 15.0, "A powerful energy gun", 5);
-	Weapon w3("Beam Sword", 15.0, "A sword made of energy", 5);
+	Weapon w3("BeamSword", 15.0, "A sword made of energy", 5);
 	Weapon w4("PAL", 100.0, "Planetary Anihilation Laser", 20);
-	Armor a1("Flak Jacket", 5.0, "Offers mild protection", 2);
-	Armor a2("Power Suit", 20.0, "Offers medium protection", 7);
-	Armor a3("Mech Suit", 120.0, "A giant robot you can pilot", 25);
+	Armor a1("FlakJacket", 5.0, "Offers mild protection", 2);
+	Armor a2("PowerSuit", 20.0, "Offers medium protection", 7);
+	Armor a3("MechSuit", 120.0, "A giant robot you can pilot", 25);
 	PowerUp p1("MedKit", 5.0, "Restores 5 health", 5, HP);
-	PowerUp p2("Advanced MedKit", 10.0, "Restores 10 health", 10, HP);
+	PowerUp p2("AdvancedMedKit", 10.0, "Restores 10 health", 10, HP);
 	PowerUp p3("Steroids", 15.0, "Increases Strength by 2", 2, STR);
-	PowerUp p4("Nueral Enhancer", 15.0, "Increases Accuracy by 2", 2, ACC);
+	PowerUp p4("NueralEnhancer", 15.0, "Increases Accuracy by 2", 2, ACC);
 	PowerUp p5("Coffee", 15.0, "Increases Intellect by 2", 2, IQ);
 
 	shopStock[0] = &w1;
@@ -416,11 +417,17 @@ void saveGame(Character *pc)
 	else
 	{
 
-		save << pc->getName() << "," << pc->getLevel() << "," << pc->getRole() <<
+		/*save << pc->getName() << "," << pc->getLevel() << "," << pc->getRole() <<
 			"," << pc->getHealth() << "," << pc->getStrength() << "," << 
 			pc->getDefense() << "," << pc->getSpeed() << "," << pc->getIntellect() <<
 			"," << pc->getAccuracy() << "," << pc->getMoney() << "," << 
 			pc->getEquipedWeapon() << "," << pc->getEquipedArmor() << "," <<
+			pc->getInventoryString() << endl;*/
+		save << pc->getName() << " " << pc->getLevel() << " " << pc->getRole() <<
+			" " << pc->getHealth() << " " << pc->getStrength() << " " <<
+			pc->getDefense() << " " << pc->getSpeed() << " " << pc->getIntellect() <<
+			" " << pc->getAccuracy() << " " << pc->getMoney() << " " <<
+			pc->getEquipedWeapon() << " " << pc->getEquipedArmor() << " " <<
 			pc->getInventoryString() << endl;
 		//close file
 		save.close();
@@ -437,7 +444,6 @@ CombatStats loadGame(string *charName, CharacterType *role, int *lvl, double *mo
 	int lineCount = 1;
 	CombatStats cs;
 	int roleInt;
-	int hp, str, def, spd, iq, acc;
 	ifstream load;
 	string delim = " ";
 	string tmp, tmpLvl;
@@ -448,7 +454,8 @@ CombatStats loadGame(string *charName, CharacterType *role, int *lvl, double *mo
 		int selection;
 		while (getline(load, line))
 		{
-			fieldStart = 0;
+			
+			/*fieldStart = 0;
 			fieldEnd = line.find(delim);
 			tmp = (line.substr(fieldStart, fieldEnd));
 			// advance to the next "field" - data between two spaces - field
@@ -462,218 +469,42 @@ CombatStats loadGame(string *charName, CharacterType *role, int *lvl, double *mo
 			// lineCount utilizes the post-increment operator to output current
 			// value then increment for the next loop
 			cout << lineCount++ << " " << tmp << " - lvl: " << tmpLvl << endl;
+			*/
+			cout << lineCount++ << " " << line << endl;
 		}
 		cout << "Enter the number of the character you would like to load.";
 		// TODO validate
 		cin >> selection;
 
-		/*tmpInv = new Equipment*[STARTING_INV_SIZE];
-		for (int i = 0; i < STARTING_INV_SIZE; ++i)
-		{
-			tmpInv[i] = new EmptySlot();
-		}*/
-
 		// Go back to begining of file
 		load.clear();
 		load.seekg(0, ifstream::beg);
 
+
+
+		
 		// TODO: Refactor this to read from a txt delimited by spaces... That
 		// would be much shorter and easier..... Will need to remove spaces from
 		// item names and update save as well
 		lineCount = 1;
 		// loop to selected line, and read all the data from that line
-		while (getline(load, line))
+		//while (getline(load, line))
+		while (!load.eof())
 		{
 			// this is super WET and I don't like it, but I couldn't find a good way to parse a csv that
 			// wouldn't have required pretty extensive copying from stackoverflow or using lots of tools not covered in class
 			if (lineCount == selection)
 			{
-				fieldStart = 0;
-				fieldEnd = line.find(delim);
-				*charName = (line.substr(fieldStart, fieldEnd));
-
-				// advance to next field
-				fieldStart = fieldEnd + 1;
-				fieldEnd = (line.find(delim, fieldStart));
-				fieldLen = fieldEnd - fieldStart;
-				tmp = line.substr(fieldStart, fieldLen);
-				*lvl = stoi(tmp);
-
-				// advance to next field
-				fieldStart = fieldEnd + 1;
-				fieldEnd = (line.find(delim, fieldStart));
-				fieldLen = fieldEnd - fieldStart;
-				tmp = line.substr(fieldStart, fieldLen);
-				roleInt = stoi(line.substr(fieldStart, fieldLen));
-				*role = (CharacterType)roleInt;
-
-				// advance to next field
-				fieldStart = fieldEnd + 1;
-				fieldEnd = (line.find(delim, fieldStart));
-				fieldLen = fieldEnd - fieldStart;
-				tmp = line.substr(fieldStart, fieldLen);
-				hp = stoi(tmp);
-
-				// advance to next field
-				fieldStart = fieldEnd + 1;
-				fieldEnd = (line.find(delim, fieldStart));
-				fieldLen = fieldEnd - fieldStart;
-				tmp = line.substr(fieldStart, fieldLen);
-				str = stoi(tmp);
-
-				// advance to next field
-				fieldStart = fieldEnd + 1;
-				fieldEnd = (line.find(delim, fieldStart));
-				fieldLen = fieldEnd - fieldStart;
-				tmp = line.substr(fieldStart, fieldLen);
-				def = stoi(tmp);
-
-				// advance to next field
-				fieldStart = fieldEnd + 1;
-				fieldEnd = (line.find(delim, fieldStart));
-				fieldLen = fieldEnd - fieldStart;
-				tmp = line.substr(fieldStart, fieldLen);
-				spd = stoi(tmp);
-
-				// advance to next field
-				fieldStart = fieldEnd + 1;
-				fieldEnd = (line.find(delim, fieldStart));
-				fieldLen = fieldEnd - fieldStart;
-				tmp = line.substr(fieldStart, fieldLen);
-				iq = stoi(tmp);
-
-				// advance to next field
-				fieldStart = fieldEnd + 1;
-				fieldEnd = (line.find(delim, fieldStart));
-				fieldLen = fieldEnd - fieldStart;
-				tmp = line.substr(fieldStart, fieldLen);
-				acc = stoi(tmp);
-
-				// advance to next field
-				fieldStart = fieldEnd + 1;
-				fieldEnd = (line.find(delim, fieldStart));
-				fieldLen = fieldEnd - fieldStart;
-				tmp = line.substr(fieldStart, fieldLen);
-				*mon = stod(tmp);
-
-				// advance to next field
-				fieldStart = fieldEnd + 1;
-				fieldEnd = (line.find(delim, fieldStart));
-				fieldLen = fieldEnd - fieldStart;
-				tmp = line.substr(fieldStart, fieldLen);
-				*equipWeap = stoi(tmp);
-
-				// advance to next field
-				fieldStart = fieldEnd + 1;
-				fieldEnd = (line.find(delim, fieldStart));
-				fieldLen = fieldEnd - fieldStart;
-				tmp = line.substr(fieldStart, fieldLen);
-				*equipArm = stoi(tmp);
-
-				// advance to next field
-				/*fieldStart = fieldEnd + 1;
-				fieldEnd = (line.find(delim, fieldStart));
-				fieldLen = fieldEnd - fieldStart;
-				tmp = line.substr(fieldStart, fieldLen);
-				invCount = stoi(tmp);
-
-				// build the inventory dynamically
-				//tmpInv = new Equipment*[invCount]; already created in this scope
-				string itemName;
-				for (int i = 0; i < invCount; ++i)
-				{
-					// advance to next field
-					fieldStart = fieldEnd + 1;
-					fieldEnd = (line.find(delim, fieldStart));
-					fieldLen = fieldEnd - fieldStart;
-					itemName = line.substr(fieldStart, fieldLen);
-					// another highly inelegant solution, but again couldn't find a better way that wasn't someone else's algorithm
-					if (itemName == "Laser")
-					{ 
-						delete tmpInv[i];
-						tmpInv[i] = items[0];
-					}
-					else if (itemName == "Blaster")
-					{
-						delete tmpInv[i];
-						tmpInv[i] = items[1];
-					}
-					else if (itemName == "Beam Sword")
-					{
-						delete tmpInv[i];
-						tmpInv[i] = items[2];
-					}
-					else if (itemName == "PAL")
-					{
-						delete tmpInv[i];
-						tmpInv[i] = items[3];
-					}
-					else if (itemName == "Flak Jacket")
-					{
-						delete tmpInv[i];
-						tmpInv[i] = items[4];
-					}
-					else if (itemName == "Power Suit")
-					{
-						delete tmpInv[i];
-						tmpInv[i] = items[5];
-					}
-					else if (itemName == "Mech Suit")
-					{
-						delete tmpInv[i];
-						tmpInv[i] = items[6];
-					}
-					else if (itemName == "MedKit")
-					{
-						delete tmpInv[i];
-						tmpInv[i] = items[7];
-					}
-					else if (itemName == "Advanced MedKit")
-					{
-						delete tmpInv[i];
-						tmpInv[i] = items[8];
-					}
-					else if (itemName == "Steroids")
-					{
-						delete tmpInv[i];
-						tmpInv[i] = items[9];
-					}
-					else if (itemName == "Nueral Enhancer")
-					{
-						delete tmpInv[i];
-						tmpInv[i] = items[10];
-					}
-					else if (itemName == "Coffee")
-					{
-						delete tmpInv[i];
-						tmpInv[i] = items[11];
-					}
-					else
-					{
-						delete tmpInv[i];
-						tmpInv[i] = new EmptySlot();
-					}
-				}*/
+				load >> *charName >> *lvl >> roleInt >> cs.health >>
+					cs.strength >> cs.defense >> cs.speed >> cs.intellect >>
+					cs.accuracy >> *mon >> *equipWeap >> *equipArm;
+				break;
 			}
-			else
-			{
-				hp = 0;
-				str = 0;
-				def = 0;
-				spd = 0;
-				iq = 0;
-				acc = 0;
-			}
+			++lineCount;
 		}
 		load.close();
 
 		
-		cs.health = hp;
-		cs.strength = str;
-		cs.defense = def;
-		cs.speed = spd;
-		cs.intellect = iq;
-		cs.accuracy = acc;
 		cs.isTrained = true;
 		cs.isAlive = true;
 		
