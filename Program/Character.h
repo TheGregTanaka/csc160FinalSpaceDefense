@@ -45,7 +45,7 @@ private:
 public:
 	Character();
 	Character(CharacterType, string, CombatStats);
-	Character(CharacterType, string, int, CombatStats, double, Equipment**, int, int);
+	Character(CharacterType, string, int, CombatStats, double, int, int, int, Equipment**);
 	~Character();
 	// getters
 	string getName() { return name; };
@@ -87,4 +87,5 @@ public:
 	void displayCharSheet();
 	//template <class Type>
 	//void useItem(Type*);
+	void invDebug();
 };

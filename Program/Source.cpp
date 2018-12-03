@@ -72,8 +72,12 @@ int main()
 
 	// create the Player's Character
 	Character pc = Character();
-	Character *pcPtr = &pc;
+	//Character *pcPtr = &pc;
+	Character *pcPtr = new Character;
 	instantiateCharacter(isNewGame, shopStock, pcPtr);
+	//pc.invDebug();
+	pcPtr->invDebug();
+	system("pause");
 	// new characters are created at level 0 then immediately leveled up
 	// to allow the player to spend some stat points for character custimization
 	if (isNewGame)
@@ -82,6 +86,7 @@ int main()
 	}
 	cout << pc.getName() << endl;
 	pc.displayStats();
+
 
 	// create the "game loop"
 	bool play = true;
@@ -102,6 +107,8 @@ int main()
 			break;
 		case 3:
 			//Character Sheet
+			pc.invDebug();
+			system("pause");
 			pc.displayCharSheet();
 			break;
 		case 4:
@@ -674,7 +681,10 @@ void loadGame(Equipment** items, Character *pc)
 		cs.accuracy = acc;
 		cs.isTrained = true;
 		cs.isAlive = true;
-		*pc = Character((CharacterType)roleInt, name, lvl, cs, mon, tmpInv, equipWeap, equipArm);
+		delete pc;
+		pc = new Character((CharacterType)roleInt, name, lvl, cs, mon, equipWeap, equipArm, invCount, tmpInv);
+		pc->invDebug();
+		system("pause");
 		//remove dynamic array of pointers
 		// because it's not just an array of objects, delete[] did not work
 		/*for (int i = 0; i < STARTING_INV_SIZE; ++i)

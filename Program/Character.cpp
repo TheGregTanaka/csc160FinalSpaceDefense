@@ -1,7 +1,14 @@
 #pragma once
 #include "Character.h"
 
-Character::Character() {}
+Character::Character() 
+{
+	inventory = new Equipment*[STARTING_INV_SIZE];
+	for (int i = 0; i < STARTING_INV_SIZE; ++i)
+	{
+		inventory[i] = new EmptySlot();
+	}
+}
 
 /** 
  * Constructor to be used for a new character. Level is set to 0 and Money is the default starting value
@@ -22,13 +29,23 @@ Character::Character(CharacterType r, string charName, CombatStats charStats) :
  * and inventory, to allow for loading an existing character.
  * Using the initializer syntax demonstrated by Kate Gregory in pluralsight 5 - user defined types
  */
-Character::Character(CharacterType r, string charName, int lvl, CombatStats charStats, double m, Equipment** e, int ew, int ea) :
-	role(r), name(charName), level(lvl), stats(charStats), money(m), inventory(e), equipedWeapon(ew), equipedArmor(ea)
-{}
+Character::Character(CharacterType r, string charName, int lvl, CombatStats charStats, double m, int ew, int ea, int invSize, Equipment **e) :
+	role(r), name(charName), level(lvl), stats(charStats), money(m), equipedWeapon(ew), equipedArmor(ea)
+{
+	inventory = new Equipment*[invSize];
+	for (int i = 0; i < invSize; ++i)
+	{
+		inventory[i] = e[i];
+	}
+}
 
 Character::~Character()
 {
-	delete[] inventory;
+	//delete[] this->inventory;
+	for (int i = 0; i < STARTING_INV_SIZE; ++i)
+	{
+		delete inventory[i];
+	}
 }
 
 //this is a fake getter - I didn't want to return the memory location of a private
@@ -342,6 +359,11 @@ void Character::displayCharSheet()
 			}
 		}
 	}
+}
+
+void Character::invDebug()
+{
+	std::cout << getInventoryString() << std::endl;
 }
 
 // private methods
