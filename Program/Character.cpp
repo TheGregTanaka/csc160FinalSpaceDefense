@@ -1,6 +1,8 @@
 #pragma once
 #include "Character.h"
 
+Character::Character() {}
+
 /** 
  * Constructor to be used for a new character. Level is set to 0 and Money is the default starting value
  * Using the initializer syntax demonstrated by Kate Gregory in pluralsight 5 - user defined type
@@ -20,8 +22,8 @@ Character::Character(CharacterType r, string charName, CombatStats charStats) :
  * and inventory, to allow for loading an existing character.
  * Using the initializer syntax demonstrated by Kate Gregory in pluralsight 5 - user defined types
  */
-Character::Character(CharacterType r, string charName, int lvl, CombatStats charStats, double m, Equipment** e) :
-	role(r), name(charName), level(lvl), stats(charStats), money(m), inventory(e) 
+Character::Character(CharacterType r, string charName, int lvl, CombatStats charStats, double m, Equipment** e, int ew, int ea) :
+	role(r), name(charName), level(lvl), stats(charStats), money(m), inventory(e), equipedWeapon(ew), equipedArmor(ea)
 {}
 
 Character::~Character()
@@ -29,8 +31,24 @@ Character::~Character()
 	delete[] inventory;
 }
 
-// public methods
+//this is a fake getter - I didn't want to return the memory location of a private
+// member allowing it to be incorrectly manipulated, and there wasn't much value
+// to creating a deep copy for what I needed. This string is mainly used for saving
+// returns comma delimited string starting with the inventory size - this will be
+// useful if the inventory becomes resizable
+string Character::getInventoryString()
+{
+	int size = STARTING_INV_SIZE; // if the inventory becomes resizable fix this
+	string itemString = std::to_string(size) + ",";
+	for (int i = 0; i < STARTING_INV_SIZE; ++i)
+	{
+		itemString += inventory[i]->getName() + ",";
+	}
 
+	return itemString;
+}
+
+// public methods
 /**
  * Determines the power of an attack. This power is used both to determine if
  * the attack successfully landed, as well as calculate damge.

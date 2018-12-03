@@ -43,8 +43,9 @@ private:
 	void addItemToInventory(Equipment*);
 	void increaseStats(int);
 public:
+	Character();
 	Character(CharacterType, string, CombatStats);
-	Character(CharacterType, string, int, CombatStats, double, Equipment**);
+	Character(CharacterType, string, int, CombatStats, double, Equipment**, int, int);
 	~Character();
 	// getters
 	string getName() { return name; };
@@ -62,7 +63,9 @@ public:
 	double getMoney() { return money; };
 	int getEquipedWeapon() { return equipedWeapon; };
 	int getEquipedArmor() { return equipedArmor; };
+	string getInventoryString();
 	// setters
+	void setName(string s) { name = s; };
 	void setHealth(int h) { stats.health = h; };
 	void setStrength(int s) { stats.strength = s; };
 	void setDefense(int d) { stats.defense = d; };
