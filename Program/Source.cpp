@@ -26,7 +26,6 @@ void chatacterSheet(Character*);
 void shop(Character*, Equipment**, int);
 void saveGame(Character*);
 CombatStats loadGame(string*, CharacterType*, int*, double*, int*, int*);
-void instantiateCharacter(bool, Equipment**, Character*);
 
 // TODO: Clean up unused/dead code
 // TODO: Comment
@@ -102,10 +101,6 @@ int main()
 	// create the Player's Character
 	Character pc = Character(role, charName, lvl, charStats, mon, equipWeap, equipArm);
 	Character *pcPtr = &pc;
-	//instantiateCharacter(isNewGame, shopStock, pcPtr);
-	//pc.invDebug();
-	pcPtr->invDebug();
-	system("pause");
 	// new characters are created at level 0 then immediately leveled up
 	// to allow the player to spend some stat points for character custimization
 	if (isNewGame)
@@ -273,34 +268,6 @@ void rules()
 	}
 }
 
-// I created this as a way of calling the constructor dynamically. I suspect
-// this is not a standard practice, but was my work around for this issue.
-// The need for separate constructors comes from the dynamic allocation of the
-// inventory array, and filling it with Empty slots. I considered creating the
-// inventory in the main, and passing it to the Character constructor, but that
-// didn't feel like the correct solution
-void instantiateCharacter(bool newGame, Equipment** items, Character* pcPtr)
-{/*
-	// declare some vars to get character data
-	CombatStats charStats;
-	CharacterType role;
-	string charName;
-
-	if (newGame)
-	{
-		// Display how to play
-		rules();
-		system("cls"); // esentailly runs the clear screen command to reduce visual clutter - not a portable solution, only works on windows
-		// create character
-		charStats = characterCreation(&charName, &role);
-		*pcPtr = Character(role, charName, charStats);
-	}
-	else
-	{
-		loadGame(items, pcPtr);
-	}*/
-}
-
 CombatStats characterCreation(string *charName, CharacterType *role)
 {
 	// declare vars
@@ -458,6 +425,7 @@ void saveGame(Character *pc)
 }
 
 // TODO super inefficient.. fix this
+// TODO figure out a way to load inventory that actally works... Or possibly just give character money for the items?
 // reads data from the save file, and creates a character.
 CombatStats loadGame(string *charName, CharacterType *role, int *lvl, double *mon, int *equipWeap, int *equipArm)
 {
@@ -515,6 +483,9 @@ CombatStats loadGame(string *charName, CharacterType *role, int *lvl, double *mo
 		load.clear();
 		load.seekg(0, ifstream::beg);
 
+		// TODO: Refactor this to read from a txt delimited by spaces... That
+		// would be much shorter and easier..... Will need to remove spaces from
+		// item names and update save as well
 		lineCount = 1;
 		// loop to selected line, and read all the data from that line
 		while (getline(load, line))
