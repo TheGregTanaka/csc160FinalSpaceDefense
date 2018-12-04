@@ -1,28 +1,7 @@
 #pragma once
 #include "Character.h"
 
-/*Character::Character() 
-{
-	inventory = new Equipment*[STARTING_INV_SIZE];
-	for (int i = 0; i < STARTING_INV_SIZE; ++i)
-	{
-		inventory[i] = new EmptySlot();
-	}
-}*/
 
-/** 
- * Constructor to be used for a new character. Level is set to 0 and Money is the default starting value
- * Using the initializer syntax demonstrated by Kate Gregory in pluralsight 5 - user defined type
- */
-/*Character::Character(CharacterType r, string charName, CombatStats charStats) :
-	role(r), name(charName), level(0), stats(charStats), money(STARTING_MONEY),
-	inventory(new Equipment*[STARTING_INV_SIZE]), equipedArmor(-1), equipedWeapon(-1)
-{
-	for (int i = 0; i < STARTING_INV_SIZE; ++i)
-	{
-		inventory[i] = new EmptySlot();
-	}
-}*/
 Character::Character(CharacterType r, string charName, int lvl, CombatStats charStats,
 	double m, int ew, int ea) :
 	role(r), name(charName), level(lvl), stats(charStats), money(m), 
@@ -181,10 +160,11 @@ void Character::useItem(Equipment *e, int i)
 		equipedArmor = i;
 		break;
 	case PowerUpType: //TODO make this better
-		std::cout << "\nBIG ERROR OCCURED\n";
+		std::runtime_error("PowerUp sent to wrong function!");
 		break;
 	case EmptyType:
-		std::cout << "There's no item to use!\n";
+		std::runtime_error("Cannot use EmptySlot!");
+		break;
 	}
 }
 
@@ -215,7 +195,7 @@ void Character::useItem(PowerUp *p, int invPos)
 		break;
 	}
 	// remove powerup from inventory
-	//delete inventory[invPos];
+	delete p;
 	inventory[invPos] = new EmptySlot();
 }
 
@@ -224,29 +204,6 @@ void Character::receiveMoney(double m)
 	money += m;
 }
 
-/**
- * Allows any equipment item to be used
- */
-/*template <class Type>
-void Character::useItem(Type *e)
-{
-	int *stat;
-	std::cout << typeid(e).name();
-
-
-	if (typeid(e).name() == "Weapon")
-		stat = &(this->stats.strength);
-	std::cout << *str << "useItem\n";
-	e->use(str);
-}*/
-void Character::useItem(Weapon *e)
-{
-
-}
-
-void Character::useItem(Armor *)
-{
-}
 
 //acts like a setter that sets weapon to the none-equiped value
 void Character::removeWeapon()
@@ -359,9 +316,9 @@ void Character::displayCharSheet()
 					if (inventory[selection]->eType() == PowerUpType)
 					{
 						affectedStat effect = inventory[selection]->getWhich();
-						PowerUp p = PowerUp(inventory[selection]);
-						p.setWhich(effect);
-						useItem(&p, selection);
+						PowerUp *p = new PowerUp(inventory[selection]);
+						p->setWhich(effect);
+						useItem(p, selection);
 					}
 					else
 					{
@@ -441,7 +398,7 @@ void Character::increaseStats(int spendablePoints)
 		std::cout << "You have " << spendablePoints << " to spend. Your current stats are:\n";
 		this->displayStats();
 
-		// TODO: Validate
+		// TODO: Validate - is there a way to use makeSelection here? Maybe a static utility class?
 		std::cin >> selection;
 		switch (selection)
 		{

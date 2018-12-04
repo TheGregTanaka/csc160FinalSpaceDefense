@@ -19,7 +19,8 @@ enum CharacterType
 {
 	BigGun,
 	Engineer,
-	Sniper
+	Sniper,
+	Creature
 };
 
 class Character
@@ -78,8 +79,6 @@ public:
 	bool defend();
 	void purchase(Equipment*);
 	void useItem(Equipment*, int);
-	void useItem(Weapon*);
-	void useItem(Armor*);
 	void useItem(PowerUp*, int);
 	void receiveMoney(double m);
 	void removeWeapon();

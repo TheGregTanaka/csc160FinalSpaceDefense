@@ -14,7 +14,6 @@ PowerUp::PowerUp(PowerUp *e)
 	bonus = e->getBonus();
 }
 
-//DELETE THIS
 PowerUp::PowerUp(Equipment *e)
 {
 	name = e->getName();

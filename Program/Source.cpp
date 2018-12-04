@@ -27,6 +27,7 @@ void chatacterSheet(Character*);
 void shop(Character*, Equipment**, int);
 void saveGame(Character*);
 CombatStats loadGame(string*, CharacterType*, int*, double*, int*, int*);
+int makeSelection(string const, int, int);
 
 // TODO: Clean up unused/dead code
 // TODO: Comment
@@ -77,8 +78,8 @@ int main()
 	int lvl;
 	double mon;
 	int equipWeap, equipArm;
-	int invCount;
-	Equipment** tmpInv;
+	//int invCount;
+	//Equipment** tmpInv;
 
 	if (isNewGame)
 	{
@@ -136,9 +137,12 @@ int main()
 		case 4:
 			play = false;
 			break;
-		//TODO REMOVE - FOR TESTING/DEBUGGING
+		//TODO REMOVE 5 AND 6 - FOR TESTING/DEBUGGING
 		case 5:
 			pc.receiveMoney(20);
+			break;
+		case 6:
+			pc.levelUp();
 			break;
 		}
 		
@@ -288,9 +292,7 @@ CombatStats characterCreation(string *charName, CharacterType *role)
 		<< "\tand traps.\n" <<
 		"3: SNIPER: This sneaky S.O.B. isn't as tough, but has eyes like a hawk and a \n" <<
 		"\thell of a shot.\n";
-	cout << "Enter the number of your seletion: ";
-	// TODO: validate
-	cin >> selection;
+	selection = makeSelection("Enter the number of your seletion: ", 1, 3);
 
 	// based on selection set base values for stats
 	switch (selection)
@@ -334,9 +336,7 @@ int displayMainMenu()
 	int selection;
 	cout << "Main Menu\n";
 	cout << "1: Battle\n2: Shop\n3: View Character Sheet\n4: Exit\n";
-	cout << "Enter the number of your selection: ";
-	//TODO validate
-	cin >> selection;
+	selection = makeSelection("Enter the number of your selection: ", 1, 6);
 	return selection;
 }
 
@@ -356,6 +356,7 @@ void shop(Character  *pc, Equipment **shopStock, int stockSize)
 			setw(16) << "Item" << std::left << setw(7) << "Type" << setw(5) << 
 			"Cost\n";
 		cout << endl;
+		// Display all the items in shopStock
 		for (int i = 0; i < stockSize; ++i)
 		{
 			// put a space before the single digit rows
@@ -369,10 +370,8 @@ void shop(Character  *pc, Equipment **shopStock, int stockSize)
 		cout << " 0 Back to Main Menu\n";
 		cout << "Current money: " << pc->getMoney() << endl;
 
-		cout << "\nBob : Anything catch your interest?\n" <<
-			"Enter the ID of the item you're interested in: ";
-		// TODO validate
-		cin >> selection;
+		cout << "\nBob : Anything catch your interest?\n";
+		selection = makeSelection("Enter the ID of the item you're interested in: ", 0, 12);
 		if (selection == 0)
 		{
 			loop = false;
@@ -380,8 +379,7 @@ void shop(Character  *pc, Equipment **shopStock, int stockSize)
 		}
 		// since the index had one added for the id display, decrement the selection by one to match the true index
 		--selection;
-		cout << "Enter 1 to Examine, 2 to Purchase, or 3 to go back: ";
-		cin >> doWhat;
+		doWhat = makeSelection("Enter 1 to Examine, 2 to Purchase, or 3 to go back: ", 1, 3);
 		switch (doWhat)
 		{
 		case 1:
@@ -479,9 +477,10 @@ CombatStats loadGame(string *charName, CharacterType *role, int *lvl, double *mo
 			*/
 			cout << lineCount++ << " " << line << endl;
 		}
-		cout << "Enter the number of the character you would like to load.";
+		//cout << "Enter the number of the character you would like to load.";
 		// TODO validate
-		cin >> selection;
+		//cin >> selection;
+		selection = makeSelection("Enter the number of the character you would like to load.", 1, lineCount);
 
 		// Go back to begining of file
 		load.clear();
@@ -529,3 +528,24 @@ CombatStats loadGame(string *charName, CharacterType *role, int *lvl, double *mo
 	return cs;
 }
 
+// repromts user to make a number selection in a certain range until a valid selection is made
+int makeSelection(string const prompt, int lower, int upper)
+{
+	int selection;
+	// loop is broken by the return of a valid value
+	while (true)
+	{
+		cout << prompt;
+		cin >> selection;
+		if (cin.fail() || selection < lower || selection > upper)
+		{
+			cout << "Must enter an integer between " << lower << " and " << upper << "!\n";
+			cin.clear();
+			cin.ignore(100, '\n');
+		}
+		else
+		{
+			return selection;
+		}
+	}
+}
