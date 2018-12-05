@@ -19,7 +19,6 @@ using std::ifstream;
 string GAME_DATA_FILE = "./SaveData.txt";
 
 // func prototypes
-bool yesOrNo(string const prompt, string const options = "Y/N");
 void rules();
 CombatStats characterCreation(string*, CharacterType*);
 int displayMainMenu();
@@ -27,12 +26,9 @@ void chatacterSheet(Character*);
 void shop(Character*, Equipment**, int);
 void saveGame(Character*);
 CombatStats loadGame(string*, CharacterType*, int*, double*, int*, int*);
+bool yesOrNo(string const prompt, string const options = "Y/N");
 int makeSelection(string const, int, int);
 
-// TODO: Clean up unused/dead code
-// TODO: Comment
-// TODO: Document functions
-// TODO: Create requirement file - README would be ideal for this
 int main()
 {
 	// create items in game scope - this must be done prior to loading game data so the inventory can be loaded
@@ -69,7 +65,6 @@ int main()
 	//welcome the player to the game
 	cout << "SPAAAAAACE\n";
 	cout << "DEFENSE!!!\n\n";
-	bool isNewGame = yesOrNo("Press N for a New Game, or L to load", "N/L");
 
 	// declare some vars to get character data
 	CombatStats charStats;
@@ -78,9 +73,8 @@ int main()
 	int lvl;
 	double mon;
 	int equipWeap, equipArm;
-	//int invCount;
-	//Equipment** tmpInv;
 
+	bool isNewGame = yesOrNo("Press N for a New Game, or L to load", "N/L");
 	if (isNewGame)
 	{
 		// Display how to play
@@ -88,7 +82,7 @@ int main()
 		system("cls"); // esentailly runs the clear screen command to reduce visual clutter - not a portable solution, only works on windows
 		// create character
 		charStats = characterCreation(&charName, &role);
-		// use constants to set certain things to defaults
+		// set default starting values
 		lvl = 0;
 		mon = STARTING_MONEY;
 		equipWeap = -1;
@@ -109,8 +103,6 @@ int main()
 	{
 		pc.levelUp();
 	}
-	cout << pc.getName() << endl;
-	pc.displayStats();
 
 
 	// create the "game loop"
@@ -124,7 +116,9 @@ int main()
 		switch (selection)
 		{
 		case 1:
-			//Battle
+			//Battle - not implemented so instead I've just demonstrated the operator overload to level up
+			cout << "You won the battle and leveled up!\n";
+			++pc;
 			break;
 		case 2:
 			//Shop
@@ -137,21 +131,18 @@ int main()
 		case 4:
 			play = false;
 			break;
-		//TODO REMOVE 5 AND 6 - FOR TESTING/DEBUGGING
+		//TODO REMOVE - FOR TESTING/DEBUGGING
 		case 5:
 			pc.receiveMoney(20);
-			break;
-		case 6:
-			pc.levelUp();
 			break;
 		}
 		
 	}
 
+	// save the game if the player wants
 	bool save = yesOrNo("Would you like to save your game?");
 	if (save)
 	{
-		//TODO make this functionality
 		saveGame(pcPtr);
 	}
 
@@ -164,45 +155,9 @@ int main()
 }
 
 /*
- * Purpose: Adapted from my code from challenge 4, this will prompt the user
- *		to select from one of two options, by default, Yes or No
- * @param prompt The prompt which is displayed to the user
- * @param options The two choices the user is to select from. These SHOULD
- *		NOT include spaces and colon, but MUST be separated by a single character. They
- *		MUST be provided upercase however, as the function will run toupper
- *		on the user's entry, and it will be compared against the provided options.
- *		Each option MUST be a single letter.
- *		These default to "Y/N". Formatting will be added.
- * @returns boolean True if the user indicates the first option (yes), 
- *		false for the second option (no).
+ * Purpose: Displays the exposition of the game and rules.
+ *		Allows the player to skip rules if they wish
  */
-bool yesOrNo(string const prompt, string const options)
-{
-	char opt1 = options.at(0);
-	char opt2 = options.at(2);
-	char entry;
-	while (true)
-	{
-		cout << prompt + " " + options + ": ";
-		cin >> entry;
-		entry = toupper(entry);
-		if ((entry != opt1 && entry != opt2) || cin.fail())
-		{
-			cout << "Must enter " << opt1 << " or " << opt2 << "!\n";
-			cin.clear();
-			cin.ignore(100, '\n');
-		}
-		else
-		{
-			if (entry == opt1)
-				return true;
-			else
-				return false;
-		}
-	}
-}
-
-// outputs how to play
 void rules()
 {
 	// exposition
@@ -224,6 +179,7 @@ void rules()
 	string dialogue = "";
 	while (true)
 	{
+		// Rules about battling aliens
 		dialogue = "Bob : Come see me if you need anything between battles. Would you\n\tlike to know more about battleing aliens?";
 		if (yesOrNo(dialogue))
 		{
@@ -234,6 +190,7 @@ void rules()
 				"\n\tto set cunning traps. SNIPERs like to keep their distance. They utilize their" <<
 				"\n\taccuracy for their attacks, and are also usually the quickest.\n";
 		}
+		// Rules about combat stats
 		dialogue = "Bob : Would you like to know more about the character stats?";
 		if (yesOrNo(dialogue))
 		{
@@ -253,6 +210,7 @@ void rules()
 				"\t\tcan increase this stat (there is no cap), and leveling up will increase it\n" <<
 				"\t\tas well.\n";
 		}
+		// Rules about equipment
 		dialogue = "Bob : Would you like to know about equipment and the inventory?";
 		if (yesOrNo(dialogue))
 		{
@@ -269,12 +227,22 @@ void rules()
 				"\toptions to inspect the item (see details about it and it's effect) or to buy.\n" <<
 				"\tOf course, you'll need enough money to make the purchase!\n";
 		}
+		// Offer to repeat
 		dialogue = "Bob : Would you like to hear any of that again?";
 		if (!yesOrNo(dialogue))
 			break;
 	}
 }
 
+/*
+ * Purpose: Allows the player to create their character. The player can give
+ *		the character a name, determine what type of character which sets base
+ *		stats, then is able to assign a few stat points.
+ * @param charName An out parameter, the name that will be used for the character
+ * @param role An out parameter, the type of character
+ * @returns CombatStats A collection of stats determined by the CharacterType
+ *		with some modifications from the player
+ */
 CombatStats characterCreation(string *charName, CharacterType *role)
 {
 	// declare vars
@@ -329,6 +297,11 @@ CombatStats characterCreation(string *charName, CharacterType *role)
 	return cs;
 }
 
+/*
+ * Purpose: Displays the main menu to the player. Calls the makeSelection func
+ *		which contains built in validation.
+ * @returns int the number coresponding with the players selection
+ */
 int displayMainMenu()
 {
 	// clear the screen since this is a "new page"
@@ -336,20 +309,29 @@ int displayMainMenu()
 	int selection;
 	cout << "Main Menu\n";
 	cout << "1: Battle\n2: Shop\n3: View Character Sheet\n4: Exit\n";
-	selection = makeSelection("Enter the number of your selection: ", 1, 6);
+	selection = makeSelection("Enter the number of your selection: ", 1, 5);
 	return selection;
 }
 
+/*
+ * Purpose: Allows the character to view and purchase items.
+ * @param pc A pointer to the character visiting the shop. This allows the
+ *		character to call their purchase method on items
+ * @param shopStock an array of pointers to the equipment items to be displayed
+ * @param stockSize The number of elements in shopStock
+ */
 void shop(Character  *pc, Equipment **shopStock, int stockSize)
 {
-	//loop to allow the player to keep making purchases
+	// declare vars
 	bool loop = true;
 	int selection;
 	int doWhat;
+	//loop to allow the player to keep making purchases
 	while (loop)
 	{
 		// Clear the screen since this is a "new page"
 		system("cls");
+		// welcome character, display shop menu
 		cout << "Bob : Hello, " << pc->getName() << "! Welcome to the commisary!\n";
 		cout << "\tCome in, come in! Here's what I've got for sale:\n";
 		cout << std::setfill('*') << std::left << setw(3) << "ID" << std::left <<
@@ -371,6 +353,7 @@ void shop(Character  *pc, Equipment **shopStock, int stockSize)
 		cout << "Current money: " << pc->getMoney() << endl;
 
 		cout << "\nBob : Anything catch your interest?\n";
+		// prompt the player to select an item
 		selection = makeSelection("Enter the ID of the item you're interested in: ", 0, 12);
 		if (selection == 0)
 		{
@@ -379,6 +362,7 @@ void shop(Character  *pc, Equipment **shopStock, int stockSize)
 		}
 		// since the index had one added for the id display, decrement the selection by one to match the true index
 		--selection;
+		// prompt player to do something. They may see item details or buy the item.
 		doWhat = makeSelection("Enter 1 to Examine, 2 to Purchase, or 3 to go back: ", 1, 3);
 		switch (doWhat)
 		{
@@ -399,14 +383,17 @@ void shop(Character  *pc, Equipment **shopStock, int stockSize)
 	}
 }
 
-//writes character data to a file
+/*
+ * Purpose: Writes character data to a file to allow load games later.
+ * @param pc A pointer to the character whose data will be written
+ */
 void saveGame(Character *pc)
 {
-	// write all the data of the character to a game-save csv
-	// because the inventory set up is a little wonky with an array of pointers... TODO : Finish this thought
+	// write all the data of the character to a game-save file
 	ofstream save;
 	//ofstream::app allows appending to the end of file so as to not wipe out previous game data
 	save.open(GAME_DATA_FILE, ofstream::app);
+	// verify file is open
 	if (!save.is_open())
 	{
 		cout << "\nSome sort of error!\nGame not saved!\n";
@@ -425,11 +412,19 @@ void saveGame(Character *pc)
 	}
 }
 
-// TODO super inefficient.. fix this
 // TODO figure out a way to load inventory that actally works... Or possibly just give character money for the items?
-// reads data from the save file, and creates a character.
+/*
+ * Purpose: Reads from the game save file, and supplies all the data for character creation
+ * @param charName The character's name
+ * @param role The type of character
+ * @param lvl The character's level
+ * @param mon The character's money
+ * @param equipWeap If the character had a weapon equiped, this was it's element in the inventory
+ * @param equipArm If the character had armor equiped, this is it's element in the inventory
+ */
 CombatStats loadGame(string *charName, CharacterType *role, int *lvl, double *mon, int *equipWeap, int *equipArm)
 {
+	// declare vars
 	string line;
 	int fieldStart, fieldLen, fieldEnd;
 	int lineCount = 1;
@@ -460,9 +455,6 @@ CombatStats loadGame(string *charName, CharacterType *role, int *lvl, double *mo
 			// value then increment for the next loop
 			cout << lineCount++ << " " << tmp << " - lvl: " << tmpLvl << endl;
 		}
-		//cout << "Enter the number of the character you would like to load.";
-		// TODO validate
-		//cin >> selection;
 		selection = makeSelection("Enter the number of the character you would like to load.", 1, lineCount);
 
 		// Go back to begining of file
@@ -470,18 +462,10 @@ CombatStats loadGame(string *charName, CharacterType *role, int *lvl, double *mo
 		load.seekg(0, ifstream::beg);
 
 
-
-		
-		// TODO: Refactor this to read from a txt delimited by spaces... That
-		// would be much shorter and easier..... Will need to remove spaces from
-		// item names and update save as well
 		lineCount = 1;
-		// loop to selected line, and read all the data from that line
-		//while (getline(load, line))
+		// loop to selected line, and read all the data from that line, then break the loop
 		while (!load.eof())
 		{
-			// this is super WET and I don't like it, but I couldn't find a good way to parse a csv that
-			// wouldn't have required pretty extensive copying from stackoverflow or using lots of tools not covered in class
 			if (lineCount == selection)
 			{
 				load >> *charName >> *lvl >> roleInt >> cs.health >>
@@ -511,15 +495,62 @@ CombatStats loadGame(string *charName, CharacterType *role, int *lvl, double *mo
 	return cs;
 }
 
-// repromts user to make a number selection in a certain range until a valid selection is made
+/*
+ * Purpose: Adapted from my code from challenge 4, this will prompt the user
+ *		to select from one of two options, by default, Yes or No
+ * @param prompt The prompt which is displayed to the user
+ * @param options The two choices the user is to select from. These SHOULD
+ *		NOT include spaces and colon, but MUST be separated by a single character. They
+ *		MUST be provided upercase however, as the function will run toupper
+ *		on the user's entry, and it will be compared against the provided options.
+ *		Each option MUST be a single letter.
+ *		These default to "Y/N". Formatting will be added.
+ * @returns boolean True if the user indicates the first option (yes),
+ *		false for the second option (no).
+ */
+bool yesOrNo(string const prompt, string const options)
+{
+	char opt1 = options.at(0);
+	char opt2 = options.at(2);
+	char entry;
+	while (true)
+	{
+		cout << prompt + " " + options + ": ";
+		cin >> entry;
+		entry = toupper(entry);
+		if ((entry != opt1 && entry != opt2) || cin.fail())
+		{
+			cout << "Must enter " << opt1 << " or " << opt2 << "!\n";
+			cin.clear();
+			cin.ignore(100, '\n');
+		}
+		else
+		{
+			if (entry == opt1)
+				return true;
+			else
+				return false;
+		}
+	}
+}
+
+/*
+ * Purpose: repromts user to make a number selection in a certain range until a
+ *		valid selection is made.
+ * @param prompt The promt displayed to the user
+ * @param lower The lowest valid number that may be entered
+ * @param upper The highest valid number that may be entered
+ */
 int makeSelection(string const prompt, int lower, int upper)
 {
 	int selection;
 	// loop is broken by the return of a valid value
 	while (true)
 	{
+		// display prompt
 		cout << prompt;
 		cin >> selection;
+		// validate selection
 		if (cin.fail() || selection < lower || selection > upper)
 		{
 			cout << "Must enter an integer between " << lower << " and " << upper << "!\n";
@@ -528,6 +559,7 @@ int makeSelection(string const prompt, int lower, int upper)
 		}
 		else
 		{
+			// return breaks the loop 
 			return selection;
 		}
 	}

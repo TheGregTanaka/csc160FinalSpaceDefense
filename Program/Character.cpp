@@ -1,7 +1,10 @@
 #pragma once
 #include "Character.h"
 
-
+/**
+ * Constructor that takes an arguments for everything but the inventory
+ * Using the initializer syntax demonstrated by Kate Gregory in pluralsight 5 - user defined types
+ */
 Character::Character(CharacterType r, string charName, int lvl, CombatStats charStats,
 	double m, int ew, int ea) :
 	role(r), name(charName), level(lvl), stats(charStats), money(m), 
@@ -15,7 +18,8 @@ Character::Character(CharacterType r, string charName, int lvl, CombatStats char
 
 /**
  * Constructor that takes an existing combat stats argument, along with money
- * and inventory, to allow for loading an existing character.
+ * and inventory, intended to allow for loading an existing character, however loading
+ * the inventory was never implemented
  * Using the initializer syntax demonstrated by Kate Gregory in pluralsight 5 - user defined types
  */
 Character::Character(CharacterType r, string charName, int lvl, CombatStats charStats, double m, int ew, int ea, int invSize, Equipment **e) :
@@ -27,7 +31,9 @@ Character::Character(CharacterType r, string charName, int lvl, CombatStats char
 		inventory[i] = e[i];
 	}
 }
-
+/*
+ * Destructor removes inventory
+ */
 Character::~Character()
 {
 	delete[] this->inventory;
@@ -51,64 +57,6 @@ string Character::getInventoryString()
 }
 
 // public methods
-/**
- * Determines the power of an attack. This power is used both to determine if
- * the attack successfully landed, as well as calculate damge.
- */
-int Character::attack()
-{
-	// declare vars
-	int power = 0;
-	// RNG in range 1-100
-	int randNum = (rand() % 100) + 1;
-	/*8% chance of special attack, after that, each role should have twice the
-	  chance of using their favored attack than the other two. To handle this,
-	  I've divided the remaining 92% by 4, to give one 'section' of probability
-	  to each attack type, and a switch statement in one column that will add a
-	  second section of probability for the favored attack type*/
-	if (randNum > 92)
-	{
-		power = specialAttack();
-	}
-	else if (randNum > 69)
-	{
-		power = strongAttack();
-	}
-	else if (randNum > 46)
-	{
-		power = cleverAttack();
-	}
-	else if (randNum > 23)
-	{
-		power = accurateAttack();
-	}
-	else
-	{
-		switch (role)
-		{
-		case BigGun:
-			power = strongAttack();
-			break;
-		case Engineer:
-			power = cleverAttack();
-			break;
-		case Sniper:
-			power = accurateAttack();
-			break;
-		}
-	}
-	return power;
-}
-
-/** 
- * Used when attacked to determine if the attack landed and the character should
- * take damage.
- */
-bool Character::defend()
-{
-	return false;
-}
-
 /**
  * Used to make purchases from the commisary. Handles the spedning of money,
  * and adds items to inventory.
@@ -204,7 +152,6 @@ void Character::receiveMoney(double m)
 	money += m;
 }
 
-
 //acts like a setter that sets weapon to the none-equiped value
 void Character::removeWeapon()
 {
@@ -246,7 +193,7 @@ void Character::displayCharSheet()
 	while (loop)
 	{
 		system("cls"); // clears the screen
-		std::cout << std::setw(10) << getName() << std::setw(4) << getLevel() << std::endl;
+		std::cout << std::setw(10) << std::left << getName() << "lvl: " << std::setw(4) << getLevel() << std::endl;
 		std::cout << std::endl;
 		std::cout << "Money: " << getMoney() << std::endl;
 		//string armor = (equipedArmor >= 0) ? inventory[equipedArmor]->getName() : "No Armor Equiped"; //receiving strange out-of-bounds behavior
@@ -341,13 +288,120 @@ void Character::displayCharSheet()
 	}
 }
 
-void Character::invDebug()
+Character& Character::operator++()
 {
-	std::cout << getInventoryString() << std::endl;
+	this->levelUp();
+	return *this;
 }
 
-// private methods
+Character Character::operator++(int)
+{
+	Character c(*this);
+	operator++();
+	return c;
+}
 
+/**
+ * Determines the power of an attack. This power is used both to determine if
+ * the attack successfully landed, as well as calculate damge. Or it would have
+ * been used for that if battlw was implemented
+ * The idea was the game would randomly choose an attack type based on different
+ * character stats, but each character would favore a particular stat
+ */
+int Character::attack()
+{
+	// declare vars
+	int power = 0;
+	// RNG in range 1-100
+	int randNum = (rand() % 100) + 1;
+	/*8% chance of special attack, after that, each role should have twice the
+	  chance of using their favored attack than the other two. To handle this,
+	  I've divided the remaining 92% by 4, to give one 'section' of probability
+	  to each attack type, and a switch statement in one column that will add a
+	  second section of probability for the favored attack type*/
+	if (randNum > 92)
+	{
+		power = specialAttack();
+	}
+	else if (randNum > 69)
+	{
+		power = strongAttack();
+	}
+	else if (randNum > 46)
+	{
+		power = cleverAttack();
+	}
+	else if (randNum > 23)
+	{
+		power = accurateAttack();
+	}
+	else
+	{
+		switch (role)
+		{
+		case BigGun:
+			power = strongAttack();
+			break;
+		case Engineer:
+			power = cleverAttack();
+			break;
+		case Sniper:
+			power = accurateAttack();
+			break;
+		}
+	}
+	return power;
+}
+
+/**
+ * Used when attacked to determine if the attack landed and the character should
+ * take damage. Not implemented
+ */
+bool Character::defend()
+{
+	return false;
+}
+
+
+// private methods
+/*
+ * Purpose Allows a player to increase certain combat stat scores with a provided number of points
+ * @param spendablePoints The number of times the player can increment a stat by 1
+ */
+void Character::increaseStats(int spendablePoints)
+{
+	int selection;
+	while (spendablePoints > 0)
+	{
+		std::cout << "You have " << spendablePoints << " to spend. Your current stats are:\n";
+		this->displayStats();
+
+		// TODO: Validate - is there a way to use makeSelection here? Maybe a static utility class?
+		std::cin >> selection;
+		switch (selection)
+		{
+		case 1:
+			++(stats.strength);
+			break;
+		case 2:
+			++(stats.defense);
+			break;
+		case 3:
+			++(stats.speed);
+			break;
+		case 4:
+			++(stats.intellect);
+			break;
+		case 5:
+			++(stats.accuracy);
+			break;
+		}
+		--spendablePoints;
+	}
+}
+
+
+	//All the following methods relate to combat and were not implemented
 /**
  * An attack which is more powerful for accurate characters
  */
@@ -380,44 +434,4 @@ int Character::specialAttack()
 bool Character::takeDamage(int)
 {
 	return false;
-}
-
-void Character::spendMoney(double)
-{
-}
-
-void Character::addItemToInventory(Equipment*)
-{
-}
-
-void Character::increaseStats(int spendablePoints)
-{
-	int selection;
-	while (spendablePoints > 0)
-	{
-		std::cout << "You have " << spendablePoints << " to spend. Your current stats are:\n";
-		this->displayStats();
-
-		// TODO: Validate - is there a way to use makeSelection here? Maybe a static utility class?
-		std::cin >> selection;
-		switch (selection)
-		{
-		case 1:
-			++(stats.strength);
-			break;
-		case 2:
-			++(stats.defense);
-			break;
-		case 3:
-			++(stats.speed);
-			break;
-		case 4:
-			++(stats.intellect);
-			break;
-		case 5:
-			++(stats.accuracy);
-			break;
-		}
-		--spendablePoints;
-	}
 }

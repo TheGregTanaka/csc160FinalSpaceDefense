@@ -40,12 +40,8 @@ private:
 	int cleverAttack();
 	int specialAttack();
 	bool takeDamage(int);
-	void spendMoney(double);
-	void addItemToInventory(Equipment*);
 	void increaseStats(int);
 public:
-	//Character();
-	//Character(CharacterType, string, CombatStats);
 	Character(CharacterType, string, int, CombatStats, double, int, int);
 	Character(CharacterType, string, int, CombatStats, double, int, int, int, Equipment**);
 	~Character();
@@ -86,7 +82,6 @@ public:
 	void levelUp();
 	void displayStats();
 	void displayCharSheet();
-	//template <class Type>
-	//void useItem(Type*);
-	void invDebug();
+	Character& operator++();
+	Character operator++(int);
 };
