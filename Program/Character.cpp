@@ -190,10 +190,25 @@ void Character::displayCharSheet()
 {
 	int selection;
 	bool loop = true;
+	string charRole;
+	switch (role)
+	{
+	case BigGun:
+		charRole = "Big Gun";
+		break;
+	case Engineer:
+		charRole = "Engineer";
+		break;
+	case Sniper:
+		charRole = "Sniper";
+		break;
+	}
+
 	while (loop)
 	{
 		system("cls"); // clears the screen
 		std::cout << std::setw(10) << std::left << getName() << "lvl: " << std::setw(4) << getLevel() << std::endl;
+		std::cout << charRole << std::endl;
 		std::cout << std::endl;
 		std::cout << "Money: " << getMoney() << std::endl;
 		//string armor = (equipedArmor >= 0) ? inventory[equipedArmor]->getName() : "No Armor Equiped"; //receiving strange out-of-bounds behavior

@@ -126,7 +126,21 @@ int main()
 			break;
 		case 3:
 			//Character Sheet
-			pc.displayCharSheet();
+			try
+			{
+				pc.displayCharSheet();
+			}
+			// the most common errors would come from the dynamic inventory array. I believe these are fixed, but try catch just in case
+			catch (std::bad_alloc &e)
+			{
+				cout << "Bad allocation! Probably due to inventory mismanagement.\n" << endl;
+				system("pause");
+			}
+			catch (...)
+			{
+				cout << "An unknown error occured! Returning to main menu.\n";
+				system("pause");
+			}
 			break;
 		case 4:
 			play = false;
